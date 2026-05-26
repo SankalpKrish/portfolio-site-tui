@@ -1,8 +1,0 @@
-{
-  "buildCommand": "bun run build",
-  "outputDirectory": "dist",
-  "framework": "astro",
-  "functions": {
-    "api/*.ts": { "runtime": "@vercel/node" }
-  }
-}
