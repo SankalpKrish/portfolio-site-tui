@@ -1,3 +1,4 @@
+// src/terminal/TerminalEngine.ts
 import { typewriter } from './typewriter';
 import { COMMANDS, unknownCommandResult, type CommandResult } from './commands';
 
@@ -12,6 +13,7 @@ export class TerminalEngine {
     this.inputEl  = inputEl;
     this.inputEl.addEventListener('keydown', this.onKeyDown.bind(this));
     this.inputEl.focus();
+    this.autoRun('splash');
   }
 
   private onKeyDown(e: KeyboardEvent) {
@@ -36,24 +38,25 @@ export class TerminalEngine {
   }
 
   private clearOutput() {
-    // Remove all child nodes — avoids innerHTML assignment entirely
     while (this.outputEl.firstChild) {
       this.outputEl.removeChild(this.outputEl.firstChild);
     }
   }
 
   private async run(raw: string) {
-    // Echo user turn — use textContent to safely display raw input (no XSS risk)
-    const userDiv = document.createElement('div');
-    userDiv.className = 'cc-user-turn';
-    const sym  = document.createElement('span');
-    sym.className = 'cc-prompt-sym';
-    sym.textContent = '>';
-    const txt  = document.createElement('span');
-    txt.className = 'cc-user-text';
-    txt.textContent = raw; // textContent is XSS-safe
-    userDiv.append(sym, txt);
-    this.outputEl.appendChild(userDiv);
+    // splash is internal — not echoed, not user-typeable
+    if (raw !== 'splash') {
+      const userDiv = document.createElement('div');
+      userDiv.className = 'cc-user-turn';
+      const sym = document.createElement('span');
+      sym.className = 'cc-prompt-sym';
+      sym.textContent = '❯';
+      const txt = document.createElement('span');
+      txt.className = 'cc-user-text';
+      txt.textContent = raw;
+      userDiv.append(sym, txt);
+      this.outputEl.appendChild(userDiv);
+    }
 
     const [cmd, ...args] = raw.split(' ');
     const handler = COMMANDS[cmd];
@@ -68,9 +71,14 @@ export class TerminalEngine {
     this.outputEl.appendChild(responseDiv);
     await typewriter(responseDiv, result.html, 4);
 
-    if (result.navigate) {
-      document.getElementById(result.navigate)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // After splash types in, render the Sans logo canvas
+    if (raw === 'splash') {
+      const { SansLogo } = await import('../canvas/SansLogo');
+      await SansLogo.render('#sans-logo');
     }
+
+    // Scroll output area to bottom
+    this.outputEl.scrollTop = this.outputEl.scrollHeight;
   }
 
   async autoRun(cmd: string) {
