@@ -1,0 +1,67 @@
+---
+interface Props {
+  tab: string;
+  sectionId: string;
+}
+const { tab, sectionId } = Astro.props;
+---
+<section id={sectionId} class="terminal-section section-enter">
+  <div class="terminal-window">
+
+    <div class="titlebar">
+      <div class="titlebar-icon">
+        <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.5" y="0.5" width="13" height="13" rx="2"
+                stroke="#b4befe" stroke-opacity="0.5"/>
+          <path d="M3 4.5l3 2.5-3 2.5" stroke="#a6e3a1" stroke-width="1.3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 9.5h3" stroke="#89b4fa" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="tab">
+        <span class="tab-label">{tab}</span>
+        <span class="tab-close">&#x2715;</span>
+      </div>
+      <div class="tab-new">+</div>
+      <div class="titlebar-chevron">&#x2304;</div>
+      <div class="titlebar-gap"></div>
+      <div class="window-controls">
+        <div class="wc-btn">&#x2014;</div>
+        <div class="wc-btn">&#x2610;</div>
+        <div class="wc-btn close">&#x2715;</div>
+      </div>
+    </div>
+
+    <div class="terminal-body">
+      <slot />
+    </div>
+
+    <div class="statusbar">
+      <span>&#x2394; {tab}</span>
+      <span class="statusbar-right" data-ist-clock></span>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.terminal-section {
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+</style>
+
+<script>
+  function updateClocks() {
+    document.querySelectorAll<HTMLElement>('[data-ist-clock]').forEach(el => {
+      el.textContent = new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        timeZone: 'Asia/Kolkata',
+      }) + ' IST';
+    });
+  }
+  updateClocks();
+  setInterval(updateClocks, 1000);
+</script>
