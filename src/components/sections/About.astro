@@ -1,0 +1,22 @@
+---
+import TerminalWindow from '../TerminalWindow.astro';
+---
+<TerminalWindow tab="SK://about" sectionId="about">
+  <div id="about-output"></div>
+  <div class="prompt-row">
+    <span class="cc-prompt-sym">&gt;</span>
+    <input type="text" class="prompt-input" id="about-input"
+           autocomplete="off" spellcheck="false" aria-label="Terminal input" />
+  </div>
+</TerminalWindow>
+<script>
+  import { TerminalEngine } from '../../terminal/TerminalEngine';
+  const engine = new TerminalEngine(
+    document.getElementById('about-output')!,
+    document.getElementById('about-input') as HTMLInputElement,
+  );
+  const obs = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { obs.disconnect(); engine.autoRun('/about'); }
+  }, { threshold: 0.3 });
+  obs.observe(document.getElementById('about')!);
+</script>
