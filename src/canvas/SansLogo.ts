@@ -9,6 +9,7 @@ const QUIPS = [
 ];
 
 let bubble: HTMLDivElement | null = null;
+let textSpan: HTMLSpanElement | null = null;
 
 function getBubble(): HTMLDivElement {
   if (bubble) return bubble;
@@ -29,9 +30,9 @@ function getBubble(): HTMLDivElement {
     transition: opacity 0.15s;
     z-index: 100;
   `;
-  // Text span — must be childNodes[0]
-  const text = document.createElement('span');
-  bubble.appendChild(text);
+  const span = document.createElement('span');
+  textSpan = span;
+  bubble.appendChild(span);
   // Triangle tail (downward-left)
   const tail = document.createElement('div');
   tail.style.cssText = `
@@ -63,24 +64,27 @@ function getBubble(): HTMLDivElement {
 
 export const SansLogo = {
   async render(selector: string): Promise<void> {
-    const canvas = document.querySelector<HTMLCanvasElement>(selector);
-    if (!canvas) return;
+    const canvases = document.querySelectorAll<HTMLCanvasElement>(selector);
+    if (canvases.length === 0) return;
     const img = new Image();
     img.src = '/sans.png';
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
       img.onerror = () => reject(new Error('Failed to load sans.png'));
     });
-    const ctx = canvas.getContext('2d')!;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvases.forEach(canvas => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    });
   },
 
   initHover(): void {
     document.querySelectorAll<HTMLElement>('.sans-logo-canvas').forEach(el => {
       el.addEventListener('mouseenter', () => {
         const b = getBubble();
-        (b.childNodes[0] as HTMLSpanElement).textContent = QUIPS[Math.floor(Math.random() * QUIPS.length)];
+        if (textSpan) textSpan.textContent = QUIPS[Math.floor(Math.random() * QUIPS.length)];
         const rect = el.getBoundingClientRect();
         b.style.left = rect.left + 'px';
         b.style.top  = (rect.top - 40) + 'px';
