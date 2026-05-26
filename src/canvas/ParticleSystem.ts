@@ -41,6 +41,8 @@ export class ParticleSystem {
   private attract = 1.0;
   private mouse = { x: 0.5, y: 0.5 };
   private raf = 0;
+  private attractTimeout = 0;
+  private attractInterval = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -59,9 +61,13 @@ export class ParticleSystem {
     const fmt = navigator.gpu.getPreferredCanvasFormat();
     this.context.configure({ device: this.device, format: fmt, alphaMode: 'premultiplied' });
 
+    const fetchShader = (url: string) => fetch(url).then(r => {
+      if (!r.ok) throw new Error(`Failed to fetch shader: ${url}`);
+      return r.text();
+    });
     const [compWGSL, rendWGSL] = await Promise.all([
-      fetch('/shaders/particle.compute.wgsl').then(r => r.text()),
-      fetch('/shaders/particle.render.wgsl').then(r => r.text()),
+      fetchShader('/shaders/particle.compute.wgsl'),
+      fetchShader('/shaders/particle.render.wgsl'),
     ]);
 
     // Particle buffer
@@ -130,12 +136,12 @@ export class ParticleSystem {
     this.frame();
 
     // Converge for 3s then fade attract to 0 over 1s
-    setTimeout(() => {
+    this.attractTimeout = window.setTimeout(() => {
       let elapsed = 0;
-      const iv = setInterval(() => {
+      this.attractInterval = window.setInterval(() => {
         elapsed += 50;
         this.attract = Math.max(0, 1 - elapsed / 1000);
-        if (elapsed >= 1000) clearInterval(iv);
+        if (elapsed >= 1000) clearInterval(this.attractInterval);
       }, 50);
     }, 3000);
   }
@@ -174,6 +180,8 @@ export class ParticleSystem {
 
   destroy() {
     cancelAnimationFrame(this.raf);
+    clearTimeout(this.attractTimeout);
+    clearInterval(this.attractInterval);
     this.particleBuf.destroy();
     this.uniformBuf.destroy();
     this.targetBuf.destroy();
