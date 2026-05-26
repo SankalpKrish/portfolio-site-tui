@@ -1,34 +1,7 @@
 ---
-import Base     from '../layouts/Base.astro';
-import Hero     from '../components/sections/Hero.astro';
-import About    from '../components/sections/About.astro';
-import Projects from '../components/sections/Projects.astro';
-import Skills   from '../components/sections/Skills.astro';
-import Contact  from '../components/sections/Contact.astro';
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
 ---
 <Base>
-  <!-- Full-viewport spacer: particle field plays here, user scrolls down -->
-  <div style="height:100vh;"></div>
-
-  <div style="display:flex;flex-direction:column;padding:0 20px 80px;">
-    <Hero />
-    <About />
-    <Projects />
-    <Skills />
-    <Contact />
-  </div>
+  <TerminalWindow />
 </Base>
-
-<script>
-  import gsap from 'gsap';
-  import ScrollTrigger from 'gsap/ScrollTrigger';
-  gsap.registerPlugin(ScrollTrigger);
-
-  document.querySelectorAll<HTMLElement>('.section-enter').forEach(el => {
-    gsap.fromTo(el,
-      { opacity: 0, y: 60 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' } }
-    );
-  });
-</script>

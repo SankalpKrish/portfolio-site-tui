@@ -1,4 +1,3 @@
-import { ScrollState } from './ScrollState';
 
 function generateTextTargets(text: string, count: number): Float32Array {
   const offscreen = document.createElement('canvas');
@@ -156,7 +155,7 @@ export class ParticleSystem {
   private frame() {
     this.raf = requestAnimationFrame(() => this.frame());
     const t = (performance.now() - this.t0) / 1000;
-    const u = new Float32Array([t, ScrollState.progress, this.mouse.x, this.mouse.y, this.attract, this.canvas.width, this.canvas.height, 0]);
+    const u = new Float32Array([t, 0.0, this.mouse.x, this.mouse.y, this.attract, this.canvas.width, this.canvas.height, 0]);
     this.device.queue.writeBuffer(this.uniformBuf, 0, u);
 
     const enc = this.device.createCommandEncoder();
