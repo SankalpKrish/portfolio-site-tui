@@ -1,4 +1,12 @@
 // src/terminal/commands.ts
+import { splash }   from './commands/splash';
+import { help }     from './commands/help';
+import { about }    from './commands/about';
+import { projects } from './commands/projects';
+import { skills }   from './commands/skills';
+import { contact }  from './commands/contact';
+import { open }     from './commands/open';
+
 export interface CommandResult {
   html: string;
 }
@@ -19,7 +27,13 @@ export function unknownCommandResult(cmd: string): CommandResult {
   return { html: `<div class="cc-tool-result"><span class="cc-tool-result-sym">&#x2B0F;</span><span style="color:var(--red)">${msg}</span></div>` };
 }
 
-// Imports filled in as command modules are created (Tasks 3-9)
 export const COMMANDS: Record<string, CommandHandler> = {
-  '/clear': () => ({ html: '__CLEAR__' }),
+  'splash':    splash,
+  '/help':     help,
+  '/about':    about,
+  '/projects': projects,
+  '/skills':   skills,
+  '/contact':  contact,
+  '/open':     open,
+  '/clear':    () => ({ html: '__CLEAR__' }),
 };
