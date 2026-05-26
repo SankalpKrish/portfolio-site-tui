@@ -61,7 +61,7 @@ Collapse the current 5-section scrolling portfolio into a single glassmorphic te
 
 **Titlebar:**
 - Existing traffic-light buttons + tab chrome retained
-- Sans pixel-art canvas rendered as `<canvas id="sans-logo-titlebar" width="32" height="32">` directly in the component markup (not a slot) — `SansLogo.render('#sans-logo-titlebar')` called on DOMContentLoaded
+- Sans pixel-art canvas rendered as `<canvas id="sans-logo-titlebar" class="sans-logo-canvas" width="32" height="32">` directly in the component markup (not a slot) — `SansLogo.render('#sans-logo-titlebar')` called on DOMContentLoaded
 - Tab label: `sankalpkrish.com`
 - IST clock in statusbar: unchanged
 
@@ -94,7 +94,24 @@ Auto-runs on page load via `TerminalEngine` calling `autoRun('splash')` after co
 
 The two columns sit in a `display: flex; gap: 24px` wrapper inside `.cc-output-block`.
 
-**Canvas injection:** The `<canvas id="sans-logo">` element is embedded in the splash HTML string. After `typewriter()` completes, `SansLogo.render('#sans-logo')` is called — it loads `public/sans.png` via `new Image()`, draws it to the canvas with `imageSmoothingEnabled: false` (nearest-neighbor pixel fidelity, cyan eyes intact).
+**Canvas injection:** The `<canvas id="sans-logo" class="sans-logo-canvas">` element is embedded in the splash HTML string. After `typewriter()` completes, `SansLogo.render('#sans-logo')` is called — it loads `public/sans.png` via `new Image()`, draws it to the canvas with `imageSmoothingEnabled: false` (nearest-neighbor pixel fidelity, cyan eyes intact).
+
+---
+
+## Sans Logo Hover Speech Bubble
+
+Both the titlebar canvas (`#sans-logo-titlebar`) and the splash canvas (`#sans-logo`) show a speech bubble on hover.
+
+**Content:** One of several rotating quips, randomly selected on each hover:
+- "your mouse is no good here."
+- "try using your keyboard."
+- "heh. you really thought clicking me would do something?"
+- "* sans is judging your mouse usage."
+- "wrong input device, pal."
+
+**Appearance:** Pixel-art / Undertale-style speech bubble — white background, 2px solid black border, no border-radius (hard pixel edges), black monospace text, small downward-left triangle tail pointing at the canvas. Positioned above the canvas, centered horizontally.
+
+**Implementation:** A single `<div id="sans-speech-bubble">` appended to `<body>`, absolutely positioned via JS on each mouseenter. `SansLogo.ts` exports an `initHover()` function that wires mouseenter/mouseleave on all `.sans-logo-canvas` elements. Called once on DOMContentLoaded. CSS transition: `opacity 0.15s` fade in/out. No animation on the bubble itself — instant pop-up matches Undertale's dialog style.
 
 ---
 
