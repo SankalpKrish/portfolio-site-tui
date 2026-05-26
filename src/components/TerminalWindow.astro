@@ -1,25 +1,18 @@
 ---
-interface Props {
-  tab: string;
-  sectionId: string;
-}
-const { tab, sectionId } = Astro.props;
+// No props — this is the single global terminal
 ---
-<section id={sectionId} class="terminal-section section-enter">
+<div id="terminal-island">
   <div class="terminal-window">
 
     <div class="titlebar">
-      <div class="titlebar-icon">
-        <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0.5" y="0.5" width="13" height="13" rx="2"
-                stroke="#b4befe" stroke-opacity="0.5"/>
-          <path d="M3 4.5l3 2.5-3 2.5" stroke="#a6e3a1" stroke-width="1.3"
-                stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 9.5h3" stroke="#89b4fa" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
+      <div class="titlebar-logo">
+        <canvas id="sans-logo-titlebar" class="sans-logo-canvas"
+                width="24" height="24"
+                style="image-rendering:pixelated;cursor:default;"
+                aria-label="Sans from Undertale pixel art"></canvas>
       </div>
       <div class="tab">
-        <span class="tab-label">{tab}</span>
+        <span class="tab-label">sankalpkrish.com</span>
         <span class="tab-close">&#x2715;</span>
       </div>
       <div class="tab-new">+</div>
@@ -33,28 +26,37 @@ const { tab, sectionId } = Astro.props;
     </div>
 
     <div class="terminal-body">
-      <slot />
+      <div id="terminal-output"></div>
+      <div class="prompt-row">
+        <span class="cc-prompt-sym">❯</span>
+        <input type="text" class="prompt-input" id="terminal-input"
+               autocomplete="off" spellcheck="false" aria-label="Terminal input" />
+      </div>
     </div>
 
     <div class="statusbar">
-      <span>&#x2394; {tab}</span>
+      <span>&#x2394; sankalpkrish.com</span>
       <span class="statusbar-right" data-ist-clock></span>
     </div>
 
   </div>
-</section>
-
-<style>
-.terminal-section {
-  padding: 40px 20px;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-</style>
+</div>
 
 <script>
-  function updateClocks() {
+  import { TerminalEngine } from '../terminal/TerminalEngine';
+  import { SansLogo } from '../canvas/SansLogo';
+
+  new TerminalEngine(
+    document.getElementById('terminal-output')!,
+    document.getElementById('terminal-input') as HTMLInputElement,
+  );
+
+  document.addEventListener('DOMContentLoaded', () => {
+    SansLogo.render('#sans-logo-titlebar');
+    SansLogo.initHover();
+  });
+
+  function updateClock() {
     document.querySelectorAll<HTMLElement>('[data-ist-clock]').forEach(el => {
       el.textContent = new Date().toLocaleTimeString('en-IN', {
         hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -62,6 +64,6 @@ const { tab, sectionId } = Astro.props;
       }) + ' IST';
     });
   }
-  updateClocks();
-  setInterval(updateClocks, 1000);
+  updateClock();
+  setInterval(updateClock, 1000);
 </script>
