@@ -1,20 +1,6 @@
-.section-enter {
-  opacity: 0;
-  transform: translateY(60px);
-}
-.skill-bar-bg {
-  display: inline-block;
-  height: 10px;
-  width: 100px;
-  background: var(--surface0);
-  border-radius: 2px;
-  vertical-align: middle;
-  position: relative;
-  overflow: hidden;
-}
-.skill-bar {
-  display: block;
-  height: 100%;
-  border-radius: 2px;
-  width: 0%;
+/* animations.css — scroll-triggered animations removed (no scrolling sections) */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
