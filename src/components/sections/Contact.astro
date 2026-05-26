@@ -1,0 +1,75 @@
+---
+import TerminalWindow from '../TerminalWindow.astro';
+---
+<TerminalWindow tab="SK://contact" sectionId="contact">
+  <div id="contact-output"></div>
+  <hr class="cc-hr" />
+  <div style="margin-top:8px;">
+    <div class="cc-tool-use">
+      <span class="cc-tool-dot" style="color:var(--green)">&#x23FA;</span>
+      <span style="color:var(--overlay1)">Email</span>
+      <span style="color:var(--overlay0)"> &mdash;&mdash; </span>
+      <a href="mailto:sankalpkrish@outlook.com" style="color:var(--blue);text-decoration:none;">sankalpkrish@outlook.com</a>
+    </div>
+    <div class="cc-tool-use">
+      <span class="cc-tool-dot" style="color:var(--green)">&#x23FA;</span>
+      <span style="color:var(--overlay1)">LinkedIn</span>
+      <span style="color:var(--overlay0)"> &mdash;&mdash; </span>
+      <a href="https://www.linkedin.com/in/sankalp-krish" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">linkedin.com/in/sankalp-krish</a>
+    </div>
+    <div class="cc-tool-use">
+      <span class="cc-tool-dot" style="color:var(--green)">&#x23FA;</span>
+      <span style="color:var(--overlay1)">GitHub</span>
+      <span style="color:var(--overlay0)"> &mdash;&mdash; </span>
+      <a href="https://github.com/SankalpKrish" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">github.com/SankalpKrish</a>
+    </div>
+    <div style="margin-top:14px;color:var(--overlay0);font-size:12px;">
+      <div>// or just type a message below and hit enter.</div>
+      <div>// I read everything. Eventually.</div>
+    </div>
+  </div>
+  <form id="contact-form" novalidate>
+    <div class="prompt-row">
+      <span class="cc-prompt-sym">&gt;</span>
+      <input type="text" name="message" class="prompt-input" id="contact-message"
+             autocomplete="off" spellcheck="false" aria-label="Send a message" placeholder="say something..." required />
+    </div>
+  </form>
+  <div id="contact-status" style="margin-top:8px;font-size:12px;min-height:20px;"></div>
+</TerminalWindow>
+<script>
+  import { TerminalEngine } from '../../terminal/TerminalEngine';
+  const engine = new TerminalEngine(
+    document.getElementById('contact-output')!,
+    document.getElementById('contact-message') as HTMLInputElement,
+  );
+  const obs = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { obs.disconnect(); engine.autoRun('/contact'); }
+  }, { threshold: 0.3 });
+  obs.observe(document.getElementById('contact')!);
+
+  const form     = document.getElementById('contact-form') as HTMLFormElement;
+  const statusEl = document.getElementById('contact-status')!;
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const input = document.getElementById('contact-message') as HTMLInputElement;
+    const msg = input.value.trim();
+    if (!msg) return;
+    statusEl.textContent = '';
+    // All innerHTML below uses hardcoded strings only — no user input reflected into DOM
+    statusEl.innerHTML = '<span style="color:var(--overlay0)">&#x2B0F; sending...</span>';
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg }),
+      });
+      statusEl.innerHTML = res.ok
+        ? "<span style='color:var(--green)'>&#x2B0F; sent. I'll get back to you.</span>"
+        : "<span style='color:var(--red)'>&#x2B0F; error: try sankalpkrish@outlook.com directly.</span>";
+      if (res.ok) input.value = '';
+    } catch {
+      statusEl.innerHTML = "<span style='color:var(--red)'>&#x2B0F; network error: try sankalpkrish@outlook.com directly.</span>";
+    }
+  });
+</script>

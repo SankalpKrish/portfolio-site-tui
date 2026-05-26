@@ -1,0 +1,100 @@
+---
+import TerminalWindow from '../TerminalWindow.astro';
+
+const projects = [
+  {
+    name: 'MIDI.ai',
+    meta: 'projects/midi-ai/ · 2024 · Solo',
+    desc: 'A truly AI-powered audio track to MIDI file pipeline.',
+    tags: [['Python','--blue'],['AI/ML','--mauve']],
+    url:  'https://github.com/SankalpKrish/MIDI.ai',
+    preview: 'waveform',
+  },
+  {
+    name: 'OpenComputer',
+    meta: 'projects/opencomputer/ · 2024 · Collab',
+    desc: 'Building the frontend + native AI skill/plugin curiosity and discoverability.',
+    tags: [['TypeScript','--blue'],['Bun','--teal'],['AI','--mauve']],
+    url:  'https://github.com/sakshamzip2-sys/opencomputer',
+    preview: 'nodegraph',
+  },
+  {
+    name: 'The Procrastination Engine',
+    meta: 'projects/procrastination-engine/ · 2023 · For fun',
+    desc: "A clock made of several tiny clocks. It's time… within a time… within a time.",
+    tags: [['JavaScript','--yellow'],['Canvas','--peach']],
+    url:  'https://github.com/SankalpKrish/The-Procrastination-Engine',
+    preview: 'clock',
+  },
+];
+---
+<TerminalWindow tab="SK://projects" sectionId="projects">
+  <div id="projects-output"></div>
+  <hr class="cc-hr" />
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+    {projects.map(p => (
+      <div class="project-row" style="position:relative;display:flex;border:1px solid rgba(180,190,254,0.10);border-radius:6px;overflow:hidden;">
+        <div style="flex:1;padding:14px 16px;">
+          <a href={p.url} target="_blank" rel="noopener"
+             style="color:var(--lavender);font-weight:600;font-size:13px;text-decoration:none;">
+            &#x2B21; {p.name}
+          </a>
+          <div style="color:var(--overlay1);font-size:11px;margin:2px 0;">{p.meta}</div>
+          <div style="color:var(--subtext0);font-size:12px;margin:4px 0 8px;">{p.desc}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            {p.tags.map(([tag, color]) => (
+              <span style={`font-size:10px;padding:1px 8px;border:1px solid rgba(var(${color}-rgb,137,180,250),0.4);color:var(${color});border-radius:3px;`}>{tag}</span>
+            ))}
+          </div>
+        </div>
+        <canvas class="project-preview-canvas" data-preview={p.preview}
+                style="width:220px;height:120px;flex-shrink:0;clip-path:inset(0 100% 0 0);transition:clip-path 0.4s cubic-bezier(0.22,1,0.36,1);"
+                aria-hidden="true"></canvas>
+      </div>
+    ))}
+  </div>
+  <div class="prompt-row" style="margin-top:16px;">
+    <span class="cc-prompt-sym">&gt;</span>
+    <input type="text" class="prompt-input" id="projects-input"
+           autocomplete="off" spellcheck="false" aria-label="Terminal input" />
+  </div>
+</TerminalWindow>
+<script>
+  import { TerminalEngine }   from '../../terminal/TerminalEngine';
+  import { WaveformPreview }  from '../../canvas/previews/WaveformPreview';
+  import { NodeGraphPreview } from '../../canvas/previews/NodeGraphPreview';
+  import { ClockPreview }     from '../../canvas/previews/ClockPreview';
+
+  const engine = new TerminalEngine(
+    document.getElementById('projects-output')!,
+    document.getElementById('projects-input') as HTMLInputElement,
+  );
+  const obs = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { obs.disconnect(); engine.autoRun('/projects'); }
+  }, { threshold: 0.2 });
+  obs.observe(document.getElementById('projects')!);
+
+  const previewCtors: Record<string, new (c: HTMLCanvasElement) => { destroy(): void }> = {
+    waveform:  WaveformPreview,
+    nodegraph: NodeGraphPreview,
+    clock:     ClockPreview,
+  };
+  const instances = new Map<HTMLCanvasElement, { destroy(): void }>();
+
+  document.querySelectorAll<HTMLElement>('.project-row').forEach(row => {
+    const canvas = row.querySelector<HTMLCanvasElement>('.project-preview-canvas')!;
+    row.addEventListener('mouseenter', () => {
+      if (!instances.has(canvas))
+        instances.set(canvas, new previewCtors[canvas.dataset.preview!](canvas));
+      canvas.style.clipPath = 'inset(0 0% 0 0)';
+    });
+    row.addEventListener('mouseleave', () => {
+      canvas.style.clipPath = 'inset(0 100% 0 0)';
+    });
+  });
+
+  const cleanObs = new IntersectionObserver(e => {
+    if (!e[0].isIntersecting) { instances.forEach(i => i.destroy()); instances.clear(); }
+  }, { threshold: 0 });
+  cleanObs.observe(document.getElementById('projects')!);
+</script>
