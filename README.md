@@ -2,6 +2,32 @@
 
 Personal portfolio site for Sankalp Krishnamurthy. Built as a single-page terminal interface styled after a developer tool, running entirely in the browser with no backend.
 
+Live site: [sankalpkrish.com](https://sankalpkrish.com)
+
+---
+
+## Getting Started
+
+View the site live at [sankalpkrish.com](https://sankalpkrish.com). Type `/help` in the terminal to see available commands.
+
+For development:
+
+```bash
+bun install
+bun run dev       # http://localhost:4321
+```
+
+---
+
+## Features
+
+- **WebGPU Particle System** - Animated particle effects that form text and logo from thousands of particles with compute shader physics
+- **Terminal Interface** - CLI-style navigation with command history, autocomplete, and typewriter output
+- **Static Deployment** - No server or database; runs entirely in the browser and deploys to Cloudflare Pages
+- **Responsive Design** - Glassmorphic terminal window adapts to all screen sizes
+- **SEO Optimized** - Open Graph tags, Twitter Cards, and schema.org Person structured data
+- **Browser Fallback** - Three.js fallback rendering for browsers without WebGPU support
+
 ---
 
 ## Overview
@@ -151,3 +177,19 @@ Deployed to Cloudflare Pages. Push to `master` triggers a production build. `wra
 **Sans (Undertale)** appears as the site mascot in three places: the titlebar logo (24x24 canvas), the splash screen (80x80 canvas), and the OG banner (200x200 scaled from the 480x480 source PNG). Image rendering is set to `pixelated` everywhere to preserve the pixel-art look at all sizes. Hovering the titlebar logo shows a speech bubble with randomised Undertale-style quips.
 
 **Typewriter output** streams per-character into the DOM at 4ms intervals after each command runs.
+
+---
+
+## Resources
+
+- Repository: [github.com/SankalpKrish/Portfolio-Site](https://github.com/SankalpKrish/Portfolio-Site)
+- Live Site: [sankalpkrish.com](https://sankalpkrish.com)
+- Hosted on: [Cloudflare Pages](https://pages.cloudflare.com)
+- Design System: [Catppuccin](https://catppuccin.com) (Mocha variant)
+- Fonts: [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono)
+
+---
+
+## Browser Support
+
+Requires a modern browser with ES2020+ support. WebGPU is supported in Chrome 113+, Edge 113+, and Chrome on Android. Older browsers and Safari fall back to Three.js WebGL rendering with equivalent particle effects.
