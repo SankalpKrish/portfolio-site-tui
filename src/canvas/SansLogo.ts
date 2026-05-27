@@ -33,6 +33,7 @@ function getBubble(): HTMLDivElement {
   const span = document.createElement('span');
   textSpan = span;
   bubble.appendChild(span);
+  
   // Triangle tail (downward-left)
   const tail = document.createElement('div');
   tail.style.cssText = `
@@ -81,18 +82,43 @@ export const SansLogo = {
   },
 
   initHover(): void {
-    document.querySelectorAll<HTMLElement>('.sans-logo-canvas').forEach(el => {
-      el.addEventListener('mouseenter', () => {
+    const hideBubble = () => {
+      if (bubble) bubble.style.opacity = '0';
+    };
+
+    // Event delegation on document to dynamically support loaded "#sans-logo"
+    document.addEventListener('mouseover', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.id === 'sans-logo') {
         const b = getBubble();
         if (textSpan) textSpan.textContent = QUIPS[Math.floor(Math.random() * QUIPS.length)];
-        const rect = el.getBoundingClientRect();
-        b.style.left = rect.left + 'px';
-        b.style.top  = (rect.top - 40) + 'px';
+        
+        const rect = target.getBoundingClientRect();
+        
+        // Render bubble styled block temporarily to get accurate offsetHeight/Width
+        b.style.display = 'block';
+        const bWidth = b.offsetWidth || 150;
+        const bHeight = b.offsetHeight || 30;
+        
+        // Align the bubble tail (at left: 10px) to point near the center of the 80x80 canvas (at rect.left + 40px)
+        // So bubble left = rect.left + 40px - 10px = rect.left + 30px
+        b.style.left = (rect.left + 30) + 'px';
+        b.style.top  = (rect.top - bHeight - 12) + 'px';
         b.style.opacity = '1';
-      });
-      el.addEventListener('mouseleave', () => {
-        getBubble().style.opacity = '0';
-      });
+      }
     });
+
+    document.addEventListener('mouseout', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.id === 'sans-logo') {
+        hideBubble();
+      }
+    });
+
+    // Automatically hide bubble when scrolling the terminal body
+    const outputEl = document.getElementById('terminal-output');
+    if (outputEl) {
+      outputEl.addEventListener('scroll', hideBubble, { passive: true });
+    }
   },
 };

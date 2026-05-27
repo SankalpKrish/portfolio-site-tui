@@ -46,14 +46,76 @@
   import { TerminalEngine } from '../terminal/TerminalEngine';
   import { SansLogo } from '../canvas/SansLogo';
 
-  new TerminalEngine(
-    document.getElementById('terminal-output')!,
-    document.getElementById('terminal-input') as HTMLInputElement,
-  );
-
   document.addEventListener('DOMContentLoaded', () => {
+    // 1. Render titlebar logo & setup hover bubble handlers
     SansLogo.render('#sans-logo-titlebar');
     SansLogo.initHover();
+
+    // 2. Typewriter typing animation for the solid DOM intro text
+    const text = "Sankalp Krish";
+    const el = document.getElementById('intro-text');
+    if (el) {
+      el.textContent = "";
+      let i = 0;
+      const interval = setInterval(() => {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+        }
+      }, 100);
+    }
+
+    // Cinematic sequence timing
+    // At 1.5s: Fade in the particle canvas (particles are already pre-aligned exactly behind the solid letters)
+    setTimeout(() => {
+      const canvas = document.getElementById('particle-canvas');
+      if (canvas) canvas.classList.add('fade-in');
+    }, 1500);
+
+    // At 2.5s: Fade out the solid DOM text (particles are already formed behind it, creating dissolve)
+    setTimeout(() => {
+      const intro = document.getElementById('intro-container');
+      if (intro) intro.classList.add('fade-out');
+    }, 2500);
+
+    // At 3.0s: WebGPU particles change phase to form the Sans logo (phase = 2.0)
+    setTimeout(() => {
+      if ((window as any).particleSystem && typeof (window as any).particleSystem.setPhase === 'function') {
+        (window as any).particleSystem.setPhase(2.0);
+      }
+    }, 3000);
+
+    // At 6.0s: Disperse particles, fade out the background canvas
+    setTimeout(() => {
+      if ((window as any).particleSystem && typeof (window as any).particleSystem.setPhase === 'function') {
+        (window as any).particleSystem.setPhase(3.0);
+      }
+      const canvas = document.getElementById('particle-canvas');
+      if (canvas) {
+        canvas.classList.remove('fade-in');
+        canvas.classList.add('fade-out');
+      }
+    }, 6000);
+
+    // At 7.0s: Terminal window scales & fades in, typewriter starts sync'd
+    setTimeout(() => {
+      const island = document.getElementById('terminal-island');
+      if (island) {
+        island.classList.add('show');
+        new TerminalEngine(
+          document.getElementById('terminal-output')!,
+          document.getElementById('terminal-input') as HTMLInputElement,
+        );
+      }
+    }, 7000);
+
+    // At 8.5s: Completely destroy the particle loop to free GPU memory!
+    setTimeout(() => {
+      if ((window as any).particleSystem) {
+        (window as any).particleSystem.destroy();
+      }
+    }, 8500);
   });
 
   function updateClock() {

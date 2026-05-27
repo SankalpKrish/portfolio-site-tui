@@ -2,6 +2,15 @@ interface Env {
   RESEND_API_KEY: string;
 }
 
+// Local helper type to represent Cloudflare Pages Functions without polluting global DOM types
+type PagesFunction<T = any> = (context: {
+  request: Request;
+  env: T;
+  params: Record<string, string>;
+  data: Record<string, any>;
+  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
+}) => Promise<Response> | Response;
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   let body: { message?: unknown };
   try {
