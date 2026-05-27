@@ -149,6 +149,8 @@
 .skill-tree-line {
   color: var(--overlay0);
   white-space: pre;
+  display: inline-block;
+  width: 70px;
 }
 .skill-name {
   color: var(--subtext0);
@@ -157,6 +159,21 @@
 .skill-label {
   color: var(--overlay0);
   font-size: 10px;
+}
+.skill-bar-segmented {
+  display: inline-flex;
+  gap: 3px;
+  margin-right: 12px;
+  align-items: center;
+}
+.skill-bar-segmented .segment {
+  width: 16px;
+  height: 5px;
+  background: rgba(180, 190, 254, 0.08);
+  border-radius: 1px;
+}
+.skill-bar-segmented .segment.filled {
+  background: var(--skill-color);
 }
 
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
@@ -199,8 +216,9 @@
     min-width: 110px;
     font-size: 11px;
   }
-  .skill-bar-bg {
-    width: 80px;
+  .skill-bar-segmented .segment {
+    width: 12px;
+    height: 4px;
   }
 }
 
@@ -208,8 +226,12 @@
   .skill-name {
     min-width: 90px;
   }
-  .skill-bar-bg {
-    width: 60px;
+  .skill-bar-segmented {
+    gap: 2px;
+  }
+  .skill-bar-segmented .segment {
+    width: 9px;
+    height: 4px;
   }
 }
 
