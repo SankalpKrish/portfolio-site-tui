@@ -116,7 +116,7 @@ export class TerminalEngine {
 
     // 2. Delegate to autocomplete menu if active
     if (this.autocompleteActive && this.autocompleteMatches.length > 0) {
-      if (e.key === 'ArrowDown' || e.key === 'Tab') {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
         this.autocompleteIndex = (this.autocompleteIndex + 1) % this.autocompleteMatches.length;
         this.renderAutocomplete();
@@ -128,7 +128,7 @@ export class TerminalEngine {
         this.renderAutocomplete();
         return;
       }
-      if (e.key === 'Enter') {
+      if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
         this.inputEl.value = this.autocompleteMatches[this.autocompleteIndex].name;
         this.hideAutocomplete();
