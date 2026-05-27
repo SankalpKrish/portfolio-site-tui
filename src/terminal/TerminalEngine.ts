@@ -101,9 +101,13 @@ export class TerminalEngine {
     if (!this.autocompleteEl) return;
     this.autocompleteEl.innerHTML = this.autocompleteMatches.map((cmd, idx) => {
       const isActive = this.autocompleteIndex === idx;
+      let displayName = cmd.name;
+      if (displayName.startsWith('/open ')) {
+        displayName = displayName.slice(6);
+      }
       return `
         <div class="autocomplete-item ${isActive ? 'active' : ''}" data-index="${idx}">
-          <span class="autocomplete-cmd">${cmd.name}</span>
+          <span class="autocomplete-cmd">${displayName}</span>
           <span class="autocomplete-desc">${cmd.desc}</span>
         </div>
       `;
