@@ -116,6 +116,7 @@ export class ParticleFallback {
   private attract = 1.0;
   private attractInterval = 0;
   private attractTimeout = 0;
+  private resizeHandler!: () => void;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -167,7 +168,8 @@ export class ParticleFallback {
       this.b[i]  = 255;
     }
 
-    window.addEventListener('resize', () => this.resize(), { passive: true });
+    this.resizeHandler = () => this.resize();
+    window.addEventListener('resize', this.resizeHandler, { passive: true });
 
     // After 2s, fade attract 1→0 over 1s (particles settle then drift)
     this.attractTimeout = window.setTimeout(() => {
@@ -223,13 +225,14 @@ export class ParticleFallback {
     const damping   = 0.85;
 
     this.ctx.clearRect(0, 0, W, H);
+    this.ctx.globalAlpha = 0.75;
 
     for (let i = 0; i < this.N; i++) {
       let fx: number, fy: number;
 
       if (this.phase === 3.0) {
-        fx = (Math.random() - 0.5) * 0.001;
-        fy = (Math.random() - 0.5) * 0.001;
+        fx = (Math.random() - 0.5) * 0.05;
+        fy = (Math.random() - 0.5) * 0.05;
       } else {
         fx = (this.tx[i] - this.x[i]) * this.attract * stiffness;
         fy = (this.ty[i] - this.y[i]) * this.attract * stiffness;
@@ -240,7 +243,6 @@ export class ParticleFallback {
       this.x[i] += this.vx[i];
       this.y[i] += this.vy[i];
 
-      this.ctx.globalAlpha = 0.75;
       this.ctx.fillStyle = `rgb(${this.r[i]},${this.g[i]},${this.b[i]})`;
       this.ctx.fillRect(this.x[i] * W - 0.75, this.y[i] * H - 0.75, 1.5, 1.5);
     }
@@ -250,5 +252,6 @@ export class ParticleFallback {
     cancelAnimationFrame(this.raf);
     clearTimeout(this.attractTimeout);
     clearInterval(this.attractInterval);
+    window.removeEventListener('resize', this.resizeHandler);
   }
 }
