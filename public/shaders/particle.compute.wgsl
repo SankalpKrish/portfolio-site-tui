@@ -84,12 +84,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
       p.vel = vec2<f32>(0.0, 0.0);
     } else {
       if uniforms.attract > 0.0 {
-        p.vel += toTarget * uniforms.attract * 0.35;
+        p.vel += toTarget * uniforms.attract * 0.08;
       }
     }
 
     // Dynamically blend colors to match the actual Sans logo image colors!
-    p.color = mix(p.color, sans.color, 0.08);
+    p.color = mix(p.color, sans.color, 0.03);
 
   } else {
     // Phase 3: Disperse particles, keeping them pure white
@@ -101,7 +101,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
   let current_spd = length(p.vel);
   var max_spd = 0.008;
   if uniforms.phase == 2.0 {
-    max_spd = 0.024;
+    max_spd = 0.010;
   } else if uniforms.phase == 3.0 {
     max_spd = 0.016;
   }
