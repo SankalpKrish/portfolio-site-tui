@@ -318,7 +318,7 @@
 
 .form-option-line {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
 
@@ -327,6 +327,8 @@
   font-weight: bold;
   width: 10px;
   visibility: hidden;
+  flex-shrink: 0;
+  margin-top: 2px; /* Slight top offset to align with text baseline */
 }
 
 .form-option.selected .form-option-cursor {
@@ -336,10 +338,12 @@
 .form-option-checkbox {
   color: var(--green);
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .form-option-text {
   color: var(--subtext1);
+  flex-shrink: 0;
 }
 
 .form-option.selected .form-option-text {

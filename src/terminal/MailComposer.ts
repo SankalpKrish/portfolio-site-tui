@@ -346,10 +346,7 @@ export class MailComposer {
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
               <span class="form-option-checkbox">[${this.emailFilled ? '✓' : ' '}]</span>
-              <span style="color:var(--text);font-weight:bold;">
-                ${emailFilledLocal ? this.escapeHtml(this.email) : 'Type your email...'}
-                <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
-              </span>
+              <span style="color:var(--text);font-weight:bold;">${emailFilledLocal ? this.escapeHtml(this.email) : 'Type your email...'}<span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span></span>
             </div>
             <div class="form-option-desc">So I can reply to your message.</div>
           </div>
@@ -390,10 +387,7 @@ export class MailComposer {
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
               <span class="form-option-checkbox">[${this.subjectFilled ? '✓' : ' '}]</span>
-              <span style="color:var(--text);font-weight:bold;">
-                ${customFilledLocal ? this.escapeHtml(this.customSubject) : 'Type your custom subject...'}
-                <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
-              </span>
+              <span style="color:var(--text);font-weight:bold;">${customFilledLocal ? this.escapeHtml(this.customSubject) : 'Type your custom subject...'}<span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span></span>
             </div>
             <div class="form-option-desc">Describe what this is about.</div>
           </div>
@@ -411,10 +405,7 @@ export class MailComposer {
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
               <span class="form-option-checkbox">[${this.messageFilled ? '✓' : ' '}]</span>
-              <span style="color:var(--text);font-weight:bold;white-space:pre-wrap;word-break:break-all;">
-                ${msgFilledLocal ? this.escapeHtml(this.message) : 'Type your message...'}
-                <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
-              </span>
+              <span style="color:var(--text);font-weight:bold;white-space:pre-wrap;word-break:break-all;">${msgFilledLocal ? this.escapeHtml(this.message) : 'Type your message...'}<span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span></span>
             </div>
             <div class="form-option-desc">What's on your mind?</div>
           </div>
