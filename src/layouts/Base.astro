@@ -11,8 +11,49 @@ const { title = 'Sankalp Krish' } = Astro.props;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Sankalp Krishna — Full-Stack Engineer & Creative Developer" />
+  <meta name="description" content="Sankalp Krish — Digital Transformation @ Atria University. Full-stack engineer & creative developer." />
   <title>{title}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/sans.png" />
+
+  <!-- Open Graph (WhatsApp, Slack, Discord, iMessage, etc.) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sankalp Krish" />
+  <meta property="og:description" content="Digital Transformation @ Atria University. Full-stack engineer & creative developer." />
+  <meta property="og:url" content="https://sankalpkrish.com/" />
+  <meta property="og:image" content="https://sankalpkrish.com/og-banner.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="Sankalp Krish" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sankalp Krish" />
+  <meta name="twitter:description" content="Digital Transformation @ Atria University. Full-stack engineer & creative developer." />
+  <meta name="twitter:image" content="https://sankalpkrish.com/og-banner.png" />
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Sankalp Krishnamurthy",
+      "alternateName": "Sankalp Krish",
+      "url": "https://sankalpkrish.com/",
+      "image": "https://sankalpkrish.com/og-banner.png",
+      "jobTitle": "Full-Stack Engineer & Creative Developer",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Atria University"
+      },
+      "email": "sankalpkrish@outlook.com",
+      "sameAs": [
+        "https://github.com/SankalpKrish",
+        "https://www.linkedin.com/in/sankalp-krish"
+      ]
+    }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
