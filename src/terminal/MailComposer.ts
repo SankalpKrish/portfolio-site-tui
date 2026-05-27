@@ -17,6 +17,11 @@ export class MailComposer {
   private statusMessage = '';
   private statusColor = 'var(--text)';
 
+  // Track if each tab has been validated (by clicking Enter/Submitting)
+  private emailFilled = false;
+  private subjectFilled = false;
+  private messageFilled = false;
+
   private subjects = [
     { title: 'General Inquiry', desc: 'Just saying hi or asking a general question.' },
     { title: 'Project Collaboration', desc: 'Discussing a new project or partnership.' },
@@ -54,10 +59,13 @@ export class MailComposer {
     const val = this.inputEl.value;
     if (this.step === 'EMAIL') {
       this.email = val;
+      this.emailFilled = false; // Reset validated state upon modification
     } else if (this.step === 'CUSTOM_SUBJECT') {
       this.customSubject = val;
+      this.subjectFilled = false; // Reset validated state upon modification
     } else if (this.step === 'MESSAGE') {
       this.message = val;
+      this.messageFilled = false; // Reset validated state upon modification
     }
     this.render();
   }
@@ -70,15 +78,41 @@ export class MailComposer {
       return;
     }
 
+    const isTextInputStep = this.step === 'EMAIL' || this.step === 'CUSTOM_SUBJECT' || this.step === 'MESSAGE';
+
+    // Step/Tab Left/Right navigation
+    if (e.key === 'ArrowLeft') {
+      const atStart = !isTextInputStep || (this.inputEl.selectionStart === 0);
+      if (atStart) {
+        e.preventDefault();
+        this.navigateLeft();
+        return;
+      }
+    }
+    if (e.key === 'ArrowRight') {
+      const atEnd = !isTextInputStep || (this.inputEl.selectionStart === this.inputEl.value.length);
+      if (atEnd) {
+        e.preventDefault();
+        this.navigateRight();
+        return;
+      }
+    }
+
     if (this.step === 'EMAIL') {
+      if (e.key === 'Tab') {
+        e.preventDefault(); // Trap focus in terminal
+        return;
+      }
       if (e.key === 'Enter') {
         e.preventDefault();
         const trimmed = this.email.trim();
         if (trimmed && trimmed.includes('@')) {
+          this.emailFilled = true;
           this.step = 'SUBJECT';
           this.inputEl.value = '';
           this.render();
         } else {
+          this.emailFilled = false;
           // Flash invalid input feedback
           this.statusMessage = 'Please enter a valid email address.';
           this.statusColor = 'var(--red)';
@@ -96,35 +130,48 @@ export class MailComposer {
       if (e.key === 'ArrowDown' || e.key === 'Tab') {
         e.preventDefault();
         this.subjectIndex = (this.subjectIndex + 1) % max;
+        this.subjectFilled = false; // Selection changed, reset validation
         this.render();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         this.subjectIndex = (this.subjectIndex - 1 + max) % max;
+        this.subjectFilled = false; // Selection changed, reset validation
         this.render();
       } else if (e.key === 'Enter') {
         e.preventDefault();
         if (this.subjectIndex === 3) {
           this.step = 'CUSTOM_SUBJECT';
-          this.inputEl.value = '';
+          this.inputEl.value = this.customSubject;
         } else {
+          this.subjectFilled = true;
           this.step = 'MESSAGE';
-          this.inputEl.value = '';
+          this.inputEl.value = this.message;
         }
         this.render();
       }
     } else if (this.step === 'CUSTOM_SUBJECT') {
+      if (e.key === 'Tab') {
+        e.preventDefault(); // Trap focus in terminal
+        return;
+      }
       if (e.key === 'Enter') {
         e.preventDefault();
         if (this.customSubject.trim()) {
+          this.subjectFilled = true;
           this.step = 'MESSAGE';
-          this.inputEl.value = '';
+          this.inputEl.value = this.message;
           this.render();
         }
       }
     } else if (this.step === 'MESSAGE') {
+      if (e.key === 'Tab') {
+        e.preventDefault(); // Trap focus in terminal
+        return;
+      }
       if (e.key === 'Enter') {
         e.preventDefault();
         if (this.message.trim()) {
+          this.messageFilled = true;
           this.step = 'SUBMIT';
           this.inputEl.value = '';
           this.render();
@@ -152,8 +199,60 @@ export class MailComposer {
     }
   }
 
+  private navigateLeft() {
+    if (this.step === 'SUBJECT') {
+      this.step = 'EMAIL';
+      this.inputEl.value = this.email;
+    } else if (this.step === 'CUSTOM_SUBJECT') {
+      this.step = 'SUBJECT';
+      this.inputEl.value = '';
+    } else if (this.step === 'MESSAGE') {
+      if (this.subjectIndex === 3) {
+        this.step = 'CUSTOM_SUBJECT';
+        this.inputEl.value = this.customSubject;
+      } else {
+        this.step = 'SUBJECT';
+        this.inputEl.value = '';
+      }
+    } else if (this.step === 'SUBMIT') {
+      this.step = 'MESSAGE';
+      this.inputEl.value = this.message;
+    }
+    this.render();
+  }
+
+  private navigateRight() {
+    if (this.step === 'EMAIL' && this.emailFilled) {
+      this.step = 'SUBJECT';
+      this.inputEl.value = '';
+    } else if (this.step === 'SUBJECT' && this.subjectFilled) {
+      if (this.subjectIndex === 3) {
+        this.step = 'CUSTOM_SUBJECT';
+        this.inputEl.value = this.customSubject;
+      } else {
+        this.step = 'MESSAGE';
+        this.inputEl.value = this.message;
+      }
+    } else if (this.step === 'CUSTOM_SUBJECT' && this.subjectFilled) {
+      this.step = 'MESSAGE';
+      this.inputEl.value = this.message;
+    } else if (this.step === 'MESSAGE' && this.messageFilled) {
+      this.step = 'SUBMIT';
+      this.inputEl.value = '';
+    }
+    this.render();
+  }
+
   private async handleSubmitChoice() {
     if (this.submitIndex === 0) {
+      // Validate everything before sending
+      if (!this.emailFilled || !this.subjectFilled || !this.messageFilled) {
+        this.statusMessage = 'Cannot submit: please complete all previous sections first.';
+        this.statusColor = 'var(--red)';
+        this.render();
+        return;
+      }
+
       // Send message
       this.isSubmitting = true;
       this.step = 'DONE';
@@ -206,35 +305,33 @@ export class MailComposer {
   }
 
   private render() {
+    const isAllFilled = this.emailFilled && this.subjectFilled && this.messageFilled;
+
     this.container.innerHTML = `
       <div class="mail-form">
         <div class="form-header">
           <span class="form-nav-arrow">&larr;</span>
-          <span class="form-tab ${this.step === 'EMAIL' ? 'active' : ''}">▣ Email</span>
-          <span class="form-tab ${this.step === 'SUBJECT' || this.step === 'CUSTOM_SUBJECT' ? 'active' : ''}">▣ Subject</span>
-          <span class="form-tab ${this.step === 'MESSAGE' ? 'active' : ''}">▣ Message</span>
-          <span class="form-tab ${this.step === 'SUBMIT' || this.step === 'DONE' ? 'active' : ''}">✓ Submit</span>
+          <span class="form-tab ${this.step === 'EMAIL' ? 'active' : ''}">${this.emailFilled ? '▣' : '☐'} Email</span>
+          <span class="form-tab ${this.step === 'SUBJECT' || this.step === 'CUSTOM_SUBJECT' ? 'active' : ''}">${this.subjectFilled ? '▣' : '☐'} Subject</span>
+          <span class="form-tab ${this.step === 'MESSAGE' ? 'active' : ''}">${this.messageFilled ? '▣' : '☐'} Message</span>
+          <span class="form-tab ${this.step === 'SUBMIT' || this.step === 'DONE' ? 'active' : ''}">${isAllFilled ? '✓' : '✗'} Submit</span>
           <span class="form-nav-arrow">&rarr;</span>
         </div>
 
-        ${this.renderBody()}
+        <div class="form-content">
+          ${this.renderBody()}
+        </div>
 
         <div class="form-footer">
           Enter to select &middot; Tab/Arrow keys to navigate &middot; Esc to cancel
         </div>
       </div>
     `;
-
-    // Scroll parent output area to bottom
-    const outputEl = this.container.closest('#terminal-output');
-    if (outputEl) {
-      outputEl.scrollTop = outputEl.scrollHeight;
-    }
   }
 
   private renderBody(): string {
     if (this.step === 'EMAIL') {
-      const emailFilled = this.email.length > 0;
+      const emailFilledLocal = this.email.length > 0;
       return `
         <div class="form-question">What is your email address?</div>
         <div class="form-option-list">
@@ -242,9 +339,9 @@ export class MailComposer {
             <div class="form-option-line">
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
-              <span class="form-option-checkbox">[${emailFilled ? '✓' : ' '}]</span>
+              <span class="form-option-checkbox">[${this.emailFilled ? '✓' : ' '}]</span>
               <span style="color:var(--text);font-weight:bold;">
-                ${emailFilled ? this.escapeHtml(this.email) : 'Type your email...'}
+                ${emailFilledLocal ? this.escapeHtml(this.email) : 'Type your email...'}
                 <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
               </span>
             </div>
@@ -278,7 +375,7 @@ export class MailComposer {
     }
 
     if (this.step === 'CUSTOM_SUBJECT') {
-      const customFilled = this.customSubject.length > 0;
+      const customFilledLocal = this.customSubject.length > 0;
       return `
         <div class="form-question">Type a custom subject:</div>
         <div class="form-option-list">
@@ -286,9 +383,9 @@ export class MailComposer {
             <div class="form-option-line">
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
-              <span class="form-option-checkbox">[${customFilled ? '✓' : ' '}]</span>
+              <span class="form-option-checkbox">[${this.subjectFilled ? '✓' : ' '}]</span>
               <span style="color:var(--text);font-weight:bold;">
-                ${customFilled ? this.escapeHtml(this.customSubject) : 'Type your custom subject...'}
+                ${customFilledLocal ? this.escapeHtml(this.customSubject) : 'Type your custom subject...'}
                 <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
               </span>
             </div>
@@ -299,7 +396,7 @@ export class MailComposer {
     }
 
     if (this.step === 'MESSAGE') {
-      const msgFilled = this.message.length > 0;
+      const msgFilledLocal = this.message.length > 0;
       return `
         <div class="form-question">Enter your message:</div>
         <div class="form-option-list">
@@ -307,9 +404,9 @@ export class MailComposer {
             <div class="form-option-line">
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
-              <span class="form-option-checkbox">[${msgFilled ? '✓' : ' '}]</span>
+              <span class="form-option-checkbox">[${this.messageFilled ? '✓' : ' '}]</span>
               <span style="color:var(--text);font-weight:bold;white-space:pre-wrap;word-break:break-all;">
-                ${msgFilled ? this.escapeHtml(this.message) : 'Type your message...'}
+                ${msgFilledLocal ? this.escapeHtml(this.message) : 'Type your message...'}
                 <span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span>
               </span>
             </div>
@@ -345,6 +442,7 @@ export class MailComposer {
             `;
           }).join('')}
         </div>
+        ${this.statusMessage ? `<div style="color:${this.statusColor};font-size:11.5px;margin-top:6px;padding-left:6px;">${this.statusMessage}</div>` : ''}
       `;
     }
 
