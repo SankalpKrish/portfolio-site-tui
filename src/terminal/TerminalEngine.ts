@@ -82,6 +82,12 @@ export class TerminalEngine {
     this.autocompleteEl.classList.add('show');
     this.outputEl.scrollTop = this.outputEl.scrollHeight;
 
+    // Ensure selected item is scrolled into view in the pane
+    const activeEl = this.autocompleteEl.querySelector('.autocomplete-item.active');
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest' });
+    }
+
     // Add click event handlers to autocomplete items for convenience
     this.autocompleteEl.querySelectorAll('.autocomplete-item').forEach(el => {
       el.addEventListener('click', (e) => {
