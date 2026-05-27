@@ -329,25 +329,18 @@
   display: none;
 }
 
-/* Command Autocomplete Popup */
+/* Command Autocomplete Pane (Integrated with TUI) */
 #command-autocomplete {
-  position: absolute;
-  bottom: 46px;
-  left: 20px;
-  right: 20px;
-  background: rgba(30, 30, 46, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(180, 190, 254, 0.2);
-  border-radius: 8px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(180, 190, 254, 0.04);
   display: none;
   flex-direction: column;
-  padding: 6px 0;
-  z-index: 100;
-  max-height: 220px;
+  background: rgba(22, 22, 34, 0.7);
+  border-top: 1px solid rgba(180, 190, 254, 0.1);
+  padding: 4px 0;
+  max-height: 200px;
   overflow-y: auto;
   font-family: var(--font-mono);
+  flex-shrink: 0;
+  user-select: none;
 }
 
 #command-autocomplete.show {

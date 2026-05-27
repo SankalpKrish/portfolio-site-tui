@@ -80,6 +80,7 @@ export class TerminalEngine {
       `;
     }).join('');
     this.autocompleteEl.classList.add('show');
+    this.outputEl.scrollTop = this.outputEl.scrollHeight;
 
     // Add click event handlers to autocomplete items for convenience
     this.autocompleteEl.querySelectorAll('.autocomplete-item').forEach(el => {
