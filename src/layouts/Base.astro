@@ -36,5 +36,18 @@ const { title = 'Sankalp Krish' } = Astro.props;
       requestAnimationFrame(animateDot);
     })();
   </script>
+  <script>
+    import { ParticleSystem } from '../canvas/ParticleSystem';
+    import { ParticleFallback } from '../canvas/ParticleFallback';
+
+    const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
+    if (canvas) {
+      new ParticleSystem(canvas).init().then((ps) => {
+        (window as any).particleSystem = ps;
+      }).catch(() => {
+        (window as any).particleSystem = new ParticleFallback(canvas);
+      });
+    }
+  </script>
 </body>
 </html>

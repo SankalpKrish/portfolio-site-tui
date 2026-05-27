@@ -7,6 +7,14 @@
   justify-content: center;
   z-index: 10;
   pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#terminal-island.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: all;
 }
 
 .terminal-window {
@@ -15,14 +23,16 @@
   height: 85vh;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  background: rgba(30, 30, 46, 0.65);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  border: 1px solid rgba(180, 190, 254, 0.18);
-  box-shadow: 0 32px 96px rgba(0, 0, 0, 0.75),
-              inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(30, 30, 46, 0.55);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(180, 190, 254, 0.22);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8),
+              0 0 80px rgba(180, 190, 254, 0.04),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .titlebar {
@@ -123,7 +133,8 @@
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
 @media (max-width: 768px) {
-  .terminal-window { width: 100vw; height: 100dvh; border-radius: 0; }
-  .tab-new, .titlebar-chevron { display: none; }
+  .terminal-window { width: 100vw; height: 100dvh; border-radius: 0; border: none; }
+  .tab-new, .titlebar-chevron, .window-controls { display: none; }
+  .tab { border-right: none; }
   #terminal-output { padding: 12px 14px 8px; font-size: 12px; }
 }

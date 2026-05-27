@@ -25,6 +25,14 @@ body {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+  opacity: 0; /* Starts completely hidden for a clean DOM typing entrance */
+}
+#particle-canvas.fade-in {
+  opacity: 0.85; /* Soft, premium particle aura */
+}
+#particle-canvas.fade-out {
+  opacity: 0;
 }
 
 #page-content {
@@ -51,4 +59,28 @@ body {
   }
   #particle-canvas { display: none; }
   #cursor-dot { display: none; }
+}
+#intro-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+  transition: opacity 0.8s ease-out;
+  opacity: 1;
+}
+
+#intro-text {
+  font-family: var(--font-mono);
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  min-height: 80px;
+}
+
+#intro-container.fade-out {
+  opacity: 0;
 }
