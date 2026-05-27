@@ -256,7 +256,7 @@ export class MailComposer {
       // Send message
       this.isSubmitting = true;
       this.step = 'DONE';
-      this.statusMessage = 'Sending your email via Resend...';
+      this.statusMessage = 'Sending your email...';
       this.statusColor = 'var(--lavender)';
       this.render();
 

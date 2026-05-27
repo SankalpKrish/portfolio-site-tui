@@ -30,7 +30,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'portfolio@sankalpkrish.com',
+      from:    'onboarding@resend.dev',
       to:      'sankalpkrish@outlook.com',
       subject: 'Portfolio contact',
       text:    message,
