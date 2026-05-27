@@ -35,5 +35,5 @@ export const COMMANDS: Record<string, CommandHandler> = {
   '/skills':   skills,
   '/contact':  contact,
   '/open':     open,
-  '/clear':    () => ({ html: '__CLEAR__' }),
+  '/reload':   () => ({ html: '__RELOAD__' }),
 };

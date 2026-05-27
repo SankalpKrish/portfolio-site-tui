@@ -19,23 +19,9 @@ const { title = 'Sankalp Krish' } = Astro.props;
 </head>
 <body>
   <canvas id="particle-canvas" aria-hidden="true"></canvas>
-  <div id="cursor-dot" aria-hidden="true"></div>
   <div id="page-content">
     <slot />
   </div>
-  <script>
-    // Trailing cursor dot with 80ms lag
-    const dot = document.getElementById('cursor-dot')!;
-    let tx = 0, ty = 0, cx = 0, cy = 0;
-    document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
-    (function animateDot() {
-      cx += (tx - cx) * 0.18;
-      cy += (ty - cy) * 0.18;
-      dot.style.left = cx + 'px';
-      dot.style.top  = cy + 'px';
-      requestAnimationFrame(animateDot);
-    })();
-  </script>
   <script>
     import { ParticleSystem } from '../canvas/ParticleSystem';
     import { ParticleFallback } from '../canvas/ParticleFallback';

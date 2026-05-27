@@ -74,6 +74,7 @@
   flex-direction: column;
   overflow: hidden;
   padding: 0;
+  position: relative;
 }
 
 #terminal-output {
@@ -130,11 +131,164 @@
 .skill-bar-bg { width: 120px; height: 4px; background: rgba(180,190,254,0.1); border-radius: 2px; flex-shrink: 0; }
 .skill-bar { height: 100%; border-radius: 2px; }
 
+/* Splash layout */
+.splash-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.splash-logo {
+  flex-shrink: 0;
+}
+
+/* Skills layout */
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skill-tree-line {
+  color: var(--overlay0);
+  white-space: pre;
+  display: inline-block;
+  width: 70px;
+}
+.skill-name {
+  color: var(--subtext0);
+  min-width: 160px;
+}
+.skill-label {
+  color: var(--overlay0);
+  font-size: 10px;
+}
+.skill-bar-segmented {
+  display: inline-flex;
+  gap: 3px;
+  margin-right: 12px;
+  align-items: center;
+}
+.skill-bar-segmented .segment {
+  width: 16px;
+  height: 5px;
+  background: rgba(180, 190, 254, 0.08);
+  border-radius: 1px;
+}
+.skill-bar-segmented .segment.filled {
+  background: var(--skill-color);
+}
+
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+@media (max-width: 1024px) {
+  .terminal-window {
+    width: 94vw;
+    height: 90vh;
+  }
+}
 
 @media (max-width: 768px) {
   .terminal-window { width: 100vw; height: 100dvh; border-radius: 0; border: none; }
   .tab-new, .titlebar-chevron, .window-controls { display: none; }
   .tab { border-right: none; }
   #terminal-output { padding: 12px 14px 8px; font-size: 12px; }
+
+  /* Stack splash and center it on mobile */
+  .splash-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .splash-container > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Responsive skills tree and bars on mobile */
+  .skill-row {
+    gap: 6px;
+  }
+  .skill-tree-line {
+    display: none;
+  }
+  .skill-name {
+    min-width: 110px;
+    font-size: 11px;
+  }
+  .skill-bar-segmented .segment {
+    width: 12px;
+    height: 4px;
+  }
+}
+
+@media (max-width: 380px) {
+  .skill-name {
+    min-width: 90px;
+  }
+  .skill-bar-segmented {
+    gap: 2px;
+  }
+  .skill-bar-segmented .segment {
+    width: 9px;
+    height: 4px;
+  }
+}
+
+/* Command Autocomplete Pane (Integrated with TUI) */
+#command-autocomplete {
+  display: none;
+  flex-direction: column;
+  background: rgba(22, 22, 34, 0.7);
+  border-top: 1px solid rgba(180, 190, 254, 0.1);
+  padding: 4px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+#command-autocomplete.show {
+  display: flex;
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.autocomplete-item.active {
+  background: rgba(180, 190, 254, 0.09);
+}
+
+.autocomplete-cmd {
+  color: var(--blue);
+  font-weight: 600;
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.autocomplete-item.active .autocomplete-cmd {
+  color: var(--lavender);
+}
+
+.autocomplete-desc {
+  color: var(--overlay0);
+  font-size: 11px;
+}
+
+.autocomplete-item.active .autocomplete-desc {
+  color: var(--subtext1);
+}
+
+/* Blinking text cursor for forms */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }

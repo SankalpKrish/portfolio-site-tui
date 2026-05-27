@@ -2,23 +2,192 @@
 import { typewriter } from './typewriter';
 import { COMMANDS, unknownCommandResult, type CommandResult } from './commands';
 
+interface CommandItem {
+  name: string;
+  desc: string;
+}
+
 export class TerminalEngine {
   private outputEl: HTMLElement;
   private inputEl: HTMLInputElement;
   private history: string[] = [];
   private historyIndex = -1;
 
+
+
+  // Autocomplete state
+  private autocompleteEl: HTMLElement | null = null;
+  private autocompleteActive = false;
+  private autocompleteMatches: CommandItem[] = [];
+  private autocompleteIndex = 0;
+  private commandsList: CommandItem[] = [
+    { name: '/about', desc: 'who I am' },
+    { name: '/projects', desc: 'things I\'ve built' },
+    { name: '/skills', desc: 'what I know' },
+    { name: '/contact', desc: 'get in touch' },
+    { name: '/open', desc: 'open a project on GitHub' },
+    { name: '/reload', desc: 'reload the website' },
+    { name: '/help', desc: 'show this message' },
+  ];
+
   constructor(outputEl: HTMLElement, inputEl: HTMLInputElement) {
     this.outputEl = outputEl;
     this.inputEl  = inputEl;
+    this.autocompleteEl = document.getElementById('command-autocomplete');
+
     this.inputEl.addEventListener('keydown', this.onKeyDown.bind(this));
+    this.inputEl.addEventListener('input', this.onInput.bind(this));
+
+    // Focus input on clicking anywhere in terminal window
+    const terminalWindow = this.inputEl.closest('.terminal-window');
+    if (terminalWindow) {
+      terminalWindow.addEventListener('click', () => {
+        this.inputEl.focus();
+      });
+    }
+
     this.inputEl.focus();
     this.autoRun('splash');
   }
 
+  private onInput() {
+    const rawVal = this.inputEl.value;
+    const val = rawVal.trim();
+    if (rawVal.startsWith('/')) {
+      if (rawVal.startsWith('/open') || rawVal.startsWith('/open ')) {
+        // Slice out '/open' (5 chars) to get the filter argument
+        const arg = rawVal.slice(5).trim().toLowerCase();
+        const projectsList = [
+          { name: '/open midi.ai', desc: 'AI audio to MIDI pipeline' },
+          { name: '/open opencomputer', desc: 'discover AI skills & plugins' },
+          { name: '/open procrastination-engine', desc: 'clock made of tiny clocks' },
+        ];
+
+        if (arg === '') {
+          this.autocompleteMatches = projectsList;
+        } else {
+          this.autocompleteMatches = projectsList.filter(proj =>
+            proj.name.slice(6).toLowerCase().startsWith(arg)
+          );
+        }
+
+        if (this.autocompleteMatches.length > 0) {
+          this.autocompleteActive = true;
+          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
+          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
+          this.renderAutocomplete();
+        } else {
+          this.hideAutocomplete();
+        }
+      } else {
+        // Regular slash commands autocomplete
+        this.autocompleteMatches = this.commandsList.filter(cmd =>
+          cmd.name.toLowerCase().startsWith(val.toLowerCase())
+        );
+
+        if (this.autocompleteMatches.length > 0) {
+          this.autocompleteActive = true;
+          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
+          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
+          this.renderAutocomplete();
+        } else {
+          this.hideAutocomplete();
+        }
+      }
+    } else {
+      this.hideAutocomplete();
+    }
+  }
+
+  private renderAutocomplete() {
+    if (!this.autocompleteEl) return;
+    this.autocompleteEl.innerHTML = this.autocompleteMatches.map((cmd, idx) => {
+      const isActive = this.autocompleteIndex === idx;
+      let displayName = cmd.name;
+      if (displayName.startsWith('/open ')) {
+        displayName = displayName.slice(6);
+      }
+      return `
+        <div class="autocomplete-item ${isActive ? 'active' : ''}" data-index="${idx}">
+          <span class="autocomplete-cmd">${displayName}</span>
+          <span class="autocomplete-desc">${cmd.desc}</span>
+        </div>
+      `;
+    }).join('');
+    this.autocompleteEl.classList.add('show');
+    this.outputEl.scrollTop = this.outputEl.scrollHeight;
+
+    // Ensure selected item is scrolled into view in the pane
+    const activeEl = this.autocompleteEl.querySelector('.autocomplete-item.active');
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest' });
+    }
+
+    // Add click event handlers to autocomplete items for convenience
+    this.autocompleteEl.querySelectorAll('.autocomplete-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const idx = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0');
+        let completed = this.autocompleteMatches[idx].name;
+        if (completed === '/open') {
+          completed = '/open ';
+        }
+        this.inputEl.value = completed;
+        this.hideAutocomplete();
+        if (completed === '/open ') {
+          this.onInput();
+        }
+        this.inputEl.focus();
+      });
+    });
+  }
+
+  private hideAutocomplete() {
+    this.autocompleteActive = false;
+    this.autocompleteMatches = [];
+    if (this.autocompleteEl) {
+      this.autocompleteEl.classList.remove('show');
+    }
+  }
+
   private onKeyDown(e: KeyboardEvent) {
+    // 1. Delegate to autocomplete menu if active
+    if (this.autocompleteActive && this.autocompleteMatches.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.autocompleteIndex = (this.autocompleteIndex + 1) % this.autocompleteMatches.length;
+        this.renderAutocomplete();
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.autocompleteIndex = (this.autocompleteIndex - 1 + this.autocompleteMatches.length) % this.autocompleteMatches.length;
+        this.renderAutocomplete();
+        return;
+      }
+      if (e.key === 'Tab' || e.key === 'Enter') {
+        e.preventDefault();
+        let completed = this.autocompleteMatches[this.autocompleteIndex].name;
+        if (completed === '/open') {
+          completed = '/open ';
+        }
+        this.inputEl.value = completed;
+        this.hideAutocomplete();
+        if (completed === '/open ') {
+          this.onInput();
+        }
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.hideAutocomplete();
+        return;
+      }
+    }
+
+    // 3. Regular CLI input controls
     if (e.key === 'Enter') {
       const raw = this.inputEl.value.trim();
+      this.hideAutocomplete();
       if (!raw) return;
       this.history.unshift(raw);
       this.historyIndex = -1;
@@ -67,6 +236,11 @@ export class TerminalEngine {
       return;
     }
 
+    if (result.html === '__RELOAD__') {
+      window.location.reload();
+      return;
+    }
+
     const responseDiv = document.createElement('div');
     this.outputEl.appendChild(responseDiv);
     await typewriter(responseDiv, result.html, 4);
@@ -76,6 +250,8 @@ export class TerminalEngine {
       const { SansLogo } = await import('../canvas/SansLogo');
       await SansLogo.render('#sans-logo');
     }
+
+
 
     // Scroll output area to bottom
     this.outputEl.scrollTop = this.outputEl.scrollHeight;
