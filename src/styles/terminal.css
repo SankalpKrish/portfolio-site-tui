@@ -130,11 +130,85 @@
 .skill-bar-bg { width: 120px; height: 4px; background: rgba(180,190,254,0.1); border-radius: 2px; flex-shrink: 0; }
 .skill-bar { height: 100%; border-radius: 2px; }
 
+/* Splash layout */
+.splash-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.splash-logo {
+  flex-shrink: 0;
+}
+
+/* Skills layout */
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skill-tree-line {
+  color: var(--overlay0);
+  white-space: pre;
+}
+.skill-name {
+  color: var(--subtext0);
+  min-width: 160px;
+}
+.skill-label {
+  color: var(--overlay0);
+  font-size: 10px;
+}
+
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+@media (max-width: 1024px) {
+  .terminal-window {
+    width: 94vw;
+    height: 90vh;
+  }
+}
 
 @media (max-width: 768px) {
   .terminal-window { width: 100vw; height: 100dvh; border-radius: 0; border: none; }
   .tab-new, .titlebar-chevron, .window-controls { display: none; }
   .tab { border-right: none; }
   #terminal-output { padding: 12px 14px 8px; font-size: 12px; }
+
+  /* Stack splash and center it on mobile */
+  .splash-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .splash-container > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Responsive skills tree and bars on mobile */
+  .skill-row {
+    gap: 6px;
+  }
+  .skill-tree-line {
+    display: none;
+  }
+  .skill-name {
+    min-width: 110px;
+    font-size: 11px;
+  }
+  .skill-bar-bg {
+    width: 80px;
+  }
+}
+
+@media (max-width: 380px) {
+  .skill-name {
+    min-width: 90px;
+  }
+  .skill-bar-bg {
+    width: 60px;
+  }
 }

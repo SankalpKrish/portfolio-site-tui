@@ -2,7 +2,7 @@
 import type { CommandHandler } from '../commands';
 
 export const projects: CommandHandler = () => ({ html: `
-  <div class="cc-tool-use"><span class="cc-tool-dot">&#x23FA;</span><span class="cc-tool-name">Glob</span><span class="cc-tool-args">(projects/**)</span></div>
+  <div class="cc-tool-use"><span class="cc-tool-dot">&#x25CF;</span><span class="cc-tool-name">Glob</span><span class="cc-tool-args">(projects/**)</span></div>
   <div class="cc-tool-result"><span class="cc-tool-result-sym">&#x2B0F;</span><span class="cc-tool-result-text">Found 3 projects</span></div>
   <div class="cc-output-block" style="display:flex;flex-direction:column;gap:10px;">
 

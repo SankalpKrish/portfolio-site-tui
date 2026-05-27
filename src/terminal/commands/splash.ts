@@ -2,8 +2,8 @@
 import type { CommandHandler } from '../commands';
 
 export const splash: CommandHandler = () => ({ html: `
-  <div class="cc-output-block" style="display:flex;gap:24px;align-items:flex-start;">
-    <canvas id="sans-logo" class="sans-logo-canvas" width="80" height="80"
+  <div class="cc-output-block splash-container">
+    <canvas id="sans-logo" class="sans-logo-canvas splash-logo" width="80" height="80"
             style="flex-shrink:0;image-rendering:pixelated;cursor:default;"
             aria-label="Sans from Undertale pixel art"></canvas>
     <div style="line-height:1.8;">
