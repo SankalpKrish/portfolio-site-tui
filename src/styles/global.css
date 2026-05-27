@@ -40,25 +40,12 @@ body {
   z-index: 1;
 }
 
-#cursor-dot {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--lavender);
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  opacity: 0.7;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
   #particle-canvas { display: none; }
-  #cursor-dot { display: none; }
 }
 #intro-container {
   position: fixed;

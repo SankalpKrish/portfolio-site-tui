@@ -23,7 +23,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!message) return Response.json({ error: 'empty message' }, { status: 400 });
   if (message.length > 2000) return Response.json({ error: 'message too long' }, { status: 400 });
 
-  const key = env.RESEND_API_KEY;
+  const key = env.RESEND_API_KEY || 're_69Yqsc2j_Akxg1eF8iQA85Tkdw4qmi5AW';
   if (!key) return Response.json({ error: 'not configured' }, { status: 500 });
 
   const r = await fetch('https://api.resend.com/emails', {

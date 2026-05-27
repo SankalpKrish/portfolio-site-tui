@@ -35,6 +35,10 @@ export function typewriter(
       }
       
       container.innerHTML = text.slice(0, i);
+      const outputEl = container.closest('#terminal-output');
+      if (outputEl) {
+        outputEl.scrollTop = outputEl.scrollHeight;
+      }
       setTimeout(tick, speed);
     }
     tick();
