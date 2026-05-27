@@ -405,7 +405,7 @@ export class MailComposer {
               <span class="form-option-cursor">❯</span>
               <span class="form-option-text">1.</span>
               <span class="form-option-checkbox">[${this.messageFilled ? '✓' : ' '}]</span>
-              <span style="color:var(--text);font-weight:bold;white-space:pre-wrap;word-break:break-all;">${msgFilledLocal ? this.escapeHtml(this.message) : 'Type your message...'}<span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span></span>
+              <span style="color:var(--text);font-weight:bold;white-space:pre-wrap;overflow-wrap:break-word;">${msgFilledLocal ? this.escapeHtml(this.message) : 'Type your message...'}<span class="form-text-cursor" style="animation: blink 1s step-start infinite;color:var(--blue)">_</span></span>
             </div>
             <div class="form-option-desc">What's on your mind?</div>
           </div>
@@ -420,7 +420,7 @@ export class MailComposer {
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(180,190,254,0.06);border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:11.5px;line-height:1.6;">
           <div><span style="color:var(--lavender)">From:</span> ${this.escapeHtml(this.email)}</div>
           <div><span style="color:var(--lavender)">Subject:</span> ${this.escapeHtml(finalSubject)}</div>
-          <div style="border-top:1px solid rgba(180,190,254,0.06);margin-top:6px;padding-top:6px;color:var(--subtext0);white-space:pre-wrap;word-break:break-all;">${this.escapeHtml(this.message)}</div>
+          <div style="border-top:1px solid rgba(180,190,254,0.06);margin-top:6px;padding-top:6px;color:var(--subtext0);white-space:pre-wrap;overflow-wrap:break-word;">${this.escapeHtml(this.message)}</div>
         </div>
         <div class="form-question">Ready to submit?</div>
         <div class="form-option-list">
