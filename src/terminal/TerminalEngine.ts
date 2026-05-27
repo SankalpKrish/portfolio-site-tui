@@ -49,19 +49,48 @@ export class TerminalEngine {
       return;
     }
 
-    const val = this.inputEl.value.trim();
-    if (val.startsWith('/')) {
-      this.autocompleteMatches = this.commandsList.filter(cmd =>
-        cmd.name.toLowerCase().startsWith(val.toLowerCase())
-      );
+    const rawVal = this.inputEl.value;
+    const val = rawVal.trim();
+    if (rawVal.startsWith('/')) {
+      if (rawVal.startsWith('/open') || rawVal.startsWith('/open ')) {
+        // Slice out '/open' (5 chars) to get the filter argument
+        const arg = rawVal.slice(5).trim().toLowerCase();
+        const projectsList = [
+          { name: '/open midi.ai', desc: 'AI audio to MIDI pipeline' },
+          { name: '/open opencomputer', desc: 'discover AI skills & plugins' },
+          { name: '/open procrastination-engine', desc: 'clock made of tiny clocks' },
+        ];
 
-      if (this.autocompleteMatches.length > 0) {
-        this.autocompleteActive = true;
-        this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
-        if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
-        this.renderAutocomplete();
+        if (arg === '') {
+          this.autocompleteMatches = projectsList;
+        } else {
+          this.autocompleteMatches = projectsList.filter(proj =>
+            proj.name.slice(6).toLowerCase().startsWith(arg)
+          );
+        }
+
+        if (this.autocompleteMatches.length > 0) {
+          this.autocompleteActive = true;
+          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
+          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
+          this.renderAutocomplete();
+        } else {
+          this.hideAutocomplete();
+        }
       } else {
-        this.hideAutocomplete();
+        // Regular slash commands autocomplete
+        this.autocompleteMatches = this.commandsList.filter(cmd =>
+          cmd.name.toLowerCase().startsWith(val.toLowerCase())
+        );
+
+        if (this.autocompleteMatches.length > 0) {
+          this.autocompleteActive = true;
+          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
+          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
+          this.renderAutocomplete();
+        } else {
+          this.hideAutocomplete();
+        }
       }
     } else {
       this.hideAutocomplete();
@@ -92,8 +121,15 @@ export class TerminalEngine {
     this.autocompleteEl.querySelectorAll('.autocomplete-item').forEach(el => {
       el.addEventListener('click', (e) => {
         const idx = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0');
-        this.inputEl.value = this.autocompleteMatches[idx].name;
+        let completed = this.autocompleteMatches[idx].name;
+        if (completed === '/open') {
+          completed = '/open ';
+        }
+        this.inputEl.value = completed;
         this.hideAutocomplete();
+        if (completed === '/open ') {
+          this.onInput();
+        }
         this.inputEl.focus();
       });
     });
@@ -130,8 +166,15 @@ export class TerminalEngine {
       }
       if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
-        this.inputEl.value = this.autocompleteMatches[this.autocompleteIndex].name;
+        let completed = this.autocompleteMatches[this.autocompleteIndex].name;
+        if (completed === '/open') {
+          completed = '/open ';
+        }
+        this.inputEl.value = completed;
         this.hideAutocomplete();
+        if (completed === '/open ') {
+          this.onInput();
+        }
         return;
       }
       if (e.key === 'Escape') {
