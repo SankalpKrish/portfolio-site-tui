@@ -301,6 +301,7 @@ export class MailComposer {
       terminalWindow.classList.remove('mail-session-active');
     }
     this.inputEl.value = '';
+    this.container.remove();
     this.onClose();
   }
 
