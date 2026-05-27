@@ -72,7 +72,9 @@ const { title = 'Sankalp Krish' } = Astro.props;
       new ParticleSystem(canvas).init().then((ps) => {
         (window as any).particleSystem = ps;
       }).catch(() => {
-        (window as any).particleSystem = new ParticleFallback(canvas);
+        new ParticleFallback(canvas).init().then((fb) => {
+          (window as any).particleSystem = fb;
+        });
       });
     }
   </script>
