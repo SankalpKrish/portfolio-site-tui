@@ -15,7 +15,6 @@ export const splash: CommandHandler = () => ({ html: `
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/projects</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">things I&apos;ve built</span></div>
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/skills</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">what I know</span></div>
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/contact</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">get in touch</span></div>
-        <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/mail</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">send me an email</span></div>
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/open [name]</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">open a project on GitHub</span></div>
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/reload</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">reload the website</span></div>
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/help</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">show this again</span></div>

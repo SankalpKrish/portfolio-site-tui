@@ -34,7 +34,6 @@ export const COMMANDS: Record<string, CommandHandler> = {
   '/projects': projects,
   '/skills':   skills,
   '/contact':  contact,
-  '/mail':     () => ({ html: '<div id="interactive-mail-form"></div>' }),
   '/open':     open,
   '/reload':   () => ({ html: '__RELOAD__' }),
 };

@@ -12,7 +12,6 @@ export const contact: CommandHandler = () => ({ html: `
     <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--green)">&#x25CF;</span><span style="color:var(--overlay1)">GitHub</span><span style="color:var(--overlay0)"> &mdash;&mdash; </span><a href="https://github.com/SankalpKrish" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">github.com/SankalpKrish</a></div>
     <br>
     <div style="color:var(--overlay0);font-size:12px;">
-      <div>// use the <span style="color:var(--blue)">/mail</span> command to compose and send me a message directly!</div>
       <div>// I read everything. Eventually.</div>
     </div>
   </div>

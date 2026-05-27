@@ -1,7 +1,6 @@
 // src/terminal/TerminalEngine.ts
 import { typewriter } from './typewriter';
 import { COMMANDS, unknownCommandResult, type CommandResult } from './commands';
-import type { MailComposer } from './MailComposer';
 
 interface CommandItem {
   name: string;
@@ -14,7 +13,7 @@ export class TerminalEngine {
   private history: string[] = [];
   private historyIndex = -1;
 
-  private mailComposer: MailComposer | null = null;
+
 
   // Autocomplete state
   private autocompleteEl: HTMLElement | null = null;
@@ -26,7 +25,6 @@ export class TerminalEngine {
     { name: '/projects', desc: 'things I\'ve built' },
     { name: '/skills', desc: 'what I know' },
     { name: '/contact', desc: 'get in touch' },
-    { name: '/mail', desc: 'send me an email' },
     { name: '/open', desc: 'open a project on GitHub' },
     { name: '/reload', desc: 'reload the website' },
     { name: '/help', desc: 'show this message' },
@@ -53,11 +51,6 @@ export class TerminalEngine {
   }
 
   private onInput() {
-    if (this.mailComposer) {
-      this.mailComposer.handleInput();
-      return;
-    }
-
     const rawVal = this.inputEl.value;
     const val = rawVal.trim();
     if (rawVal.startsWith('/')) {
@@ -157,13 +150,7 @@ export class TerminalEngine {
   }
 
   private onKeyDown(e: KeyboardEvent) {
-    // 1. Delegate to mail composer if active
-    if (this.mailComposer) {
-      this.mailComposer.handleKeyDown(e);
-      return;
-    }
-
-    // 2. Delegate to autocomplete menu if active
+    // 1. Delegate to autocomplete menu if active
     if (this.autocompleteActive && this.autocompleteMatches.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -264,18 +251,7 @@ export class TerminalEngine {
       await SansLogo.render('#sans-logo');
     }
 
-    // Check if mail composer needs to be initialized
-    const mailForm = this.outputEl.querySelector('#interactive-mail-form');
-    if (mailForm) {
-      const { MailComposer } = await import('./MailComposer');
-      this.mailComposer = new MailComposer(
-        mailForm as HTMLElement,
-        this.inputEl,
-        () => {
-          this.mailComposer = null;
-        }
-      );
-    }
+
 
     // Scroll output area to bottom
     this.outputEl.scrollTop = this.outputEl.scrollHeight;
