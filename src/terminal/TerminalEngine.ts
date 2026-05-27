@@ -39,6 +39,15 @@ export class TerminalEngine {
 
     this.inputEl.addEventListener('keydown', this.onKeyDown.bind(this));
     this.inputEl.addEventListener('input', this.onInput.bind(this));
+
+    // Focus input on clicking anywhere in terminal window
+    const terminalWindow = this.inputEl.closest('.terminal-window');
+    if (terminalWindow) {
+      terminalWindow.addEventListener('click', () => {
+        this.inputEl.focus();
+      });
+    }
+
     this.inputEl.focus();
     this.autoRun('splash');
   }

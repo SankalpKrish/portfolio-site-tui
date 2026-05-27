@@ -327,6 +327,12 @@ export class MailComposer {
         </div>
       </div>
     `;
+
+    // Scroll parent output area to bottom
+    const outputEl = this.container.closest('#terminal-output');
+    if (outputEl) {
+      outputEl.scrollTop = outputEl.scrollHeight;
+    }
   }
 
   private renderBody(): string {
