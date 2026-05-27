@@ -109,7 +109,7 @@ export class ParticleSystem {
   private device!: GPUDevice;
   private canvas: HTMLCanvasElement;
   private context!: GPUCanvasContext;
-  private N = 500_000;
+  private N = 150_000;
   private computePipeline!: GPUComputePipeline;
   private renderPipeline!: GPURenderPipeline;
   private particleBuf!: GPUBuffer;
