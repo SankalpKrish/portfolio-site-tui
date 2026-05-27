@@ -1,3 +1,5 @@
+import { Resend } from 'resend';
+
 interface Env {
   RESEND_API_KEY: string;
 }
@@ -26,18 +28,18 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const key = env.RESEND_API_KEY || 're_69Yqsc2j_Akxg1eF8iQA85Tkdw4qmi5AW';
   if (!key) return Response.json({ error: 'not configured' }, { status: 500 });
 
-  const r = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from:    'onboarding@resend.dev',
-      to:      'sankalpkrish@outlook.com',
-      subject: 'Portfolio contact',
-      text:    message,
-    }),
+  const resend = new Resend(key);
+
+  const { data, error } = await resend.emails.send({
+    from:    'onboarding@resend.dev',
+    to:      ['sankalpkrish@outlook.com'],
+    subject: 'Portfolio contact',
+    text:    message,
   });
 
-  return r.ok
-    ? Response.json({ ok: true })
-    : Response.json({ error: 'send failed' }, { status: 502 });
+  if (error) {
+    return Response.json({ error: error.message || 'send failed' }, { status: 502 });
+  }
+
+  return Response.json({ ok: true });
 };
