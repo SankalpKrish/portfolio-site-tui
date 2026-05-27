@@ -29,10 +29,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!key) return Response.json({ error: 'not configured' }, { status: 500 });
 
   const resend = new Resend(key);
-
   const { data, error } = await resend.emails.send({
     from:    'onboarding@resend.dev',
-    to:      ['sankalpkrish@outlook.com'],
+    to:      'sankalpkrish@outlook.com',
     subject: 'Portfolio contact',
     text:    message,
   });
@@ -41,5 +40,5 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return Response.json({ error: error.message || 'send failed' }, { status: 502 });
   }
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, id: data?.id });
 };
