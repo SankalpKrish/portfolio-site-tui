@@ -31,7 +31,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const resend = new Resend(key);
   const { data, error } = await resend.emails.send({
     from:    'onboarding@resend.dev',
-    to:      'sankalpkrish@outlook.com',
+    to:      env.RESEND_API_KEY ? 'sankalpkrish@outlook.com' : 'sankalp@outlook.sg',
     subject: 'Portfolio contact',
     text:    message,
   });
