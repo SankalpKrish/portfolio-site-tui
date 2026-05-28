@@ -8,7 +8,7 @@ export const splash: CommandHandler = () => ({ html: `
             aria-label="Sans from Undertale pixel art"></canvas>
     <div style="line-height:1.8;">
       <div style="color:var(--blue);font-size:15px;font-weight:600;letter-spacing:0.04em;">Sankalp Krish <span style="color:var(--overlay0);font-size:12px;font-weight:400;">v1.0.0</span></div>
-      <div style="color:var(--subtext0);font-size:12px;margin-bottom:10px;">Digital Transformation &middot; Atria University</div>
+      <div style="color:var(--subtext0);font-size:12px;margin-bottom:10px;">Food Enthusiast &middot; Star Wars Nerd</div>
       <div style="color:var(--overlay0);font-size:11px;margin-bottom:8px;">&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;</div>
       <div style="font-size:12px;line-height:2;">
         <div><span style="color:var(--blue);min-width:130px;display:inline-block;">/about</span><span style="color:var(--overlay0)">&rarr;</span> <span style="color:var(--subtext0)">who I am</span></div>
