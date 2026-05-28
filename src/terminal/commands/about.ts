@@ -15,9 +15,8 @@ export const about: CommandHandler = () => ({ html: `
     <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--blue)">&#x25CF;</span><span style="color:var(--overlay1)">Atria University, Bangalore</span><span class="cc-tool-args"> &mdash; B.Tech (Aug 2024 &ndash; Jun 2028)</span></div>
     <br>
     <div class="cc-prose-dim">When I&apos;m not coding:</div>
-    <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Vehicle spotting</span><span class="cc-tool-args"> &mdash; planes, trains, cars, bikes, ships &mdash; if it moves, I&apos;m watching</span></div>
+    <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Vehicle spotting</span><span class="cc-tool-args"> &mdash; planes, trains, cars, bikes, ships if it moves, I&apos;m watching</span></div>
     <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Researching random topics</span><span class="cc-tool-args"> &mdash; disappeared into a Wikipedia rabbit hole, send help</span></div>
-    <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Gaming</span><span class="cc-tool-args"> &mdash; yes, seriously</span></div>
     <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Philosophy</span><span class="cc-tool-args"> &mdash; strong believer, don&apos;t @ me</span></div>
     <div class="cc-tool-use"><span class="cc-tool-dot" style="color:var(--peach)">&#x25CF;</span><span style="color:var(--overlay1)">Food</span><span class="cc-tool-args"> &mdash; obsessed, no apologies</span></div>
   </div>
