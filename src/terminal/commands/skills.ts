@@ -3,7 +3,7 @@ import type { CommandHandler } from '../commands';
 
 export const skills: CommandHandler = () => ({ html: `
   <div class="cc-tool-use"><span class="cc-tool-dot">&#x25CF;</span><span class="cc-tool-name">Glob</span><span class="cc-tool-args">(skills/**)</span></div>
-  <div class="cc-tool-result"><span class="cc-tool-result-sym">&#x2B0F;</span><span class="cc-tool-result-text">Found 34 skills</span></div>
+  <div class="cc-tool-result"><span class="cc-tool-result-sym">&#x2B0F;</span><span class="cc-tool-result-text">Found 36 skills</span></div>
   <div class="cc-output-block" style="font-size:12px;line-height:2;">
 
     <div style="color:var(--teal);margin-bottom:2px;">&#x251C;&#x2500;&#x2500; <strong>spoken-languages/</strong></div>
@@ -45,6 +45,10 @@ export const skills: CommandHandler = () => ({ html: `
     <div class="skill-row"><span class="skill-tree-line">&#x2502;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500;</span><span class="skill-name">Git</span><div class="skill-bar-segmented" style="--skill-color:var(--lavender);"><span class="segment filled"></span><span class="segment filled"></span><span class="segment filled"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">average</span></div>
     <div class="skill-row"><span class="skill-tree-line">&#x2502;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500;</span><span class="skill-name">Object-Oriented</span><div class="skill-bar-segmented" style="--skill-color:var(--lavender);"><span class="segment filled"></span><span class="segment filled"></span><span class="segment filled"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">average</span></div>
     <div class="skill-row"><span class="skill-tree-line">&#x2502;&nbsp;&nbsp;&nbsp;&#x2514;&#x2500;&#x2500;</span><span class="skill-name">Computer Networks</span><div class="skill-bar-segmented" style="--skill-color:var(--lavender);"><span class="segment filled"></span><span class="segment filled"></span><span class="segment filled"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">average</span></div>
+
+    <div style="color:var(--red);margin-bottom:2px;">&#x251C;&#x2500;&#x2500; <strong>certifications/</strong></div>
+    <div class="skill-row"><span class="skill-tree-line">&#x2502;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500;</span><span class="skill-name">Google Project Management</span><div class="skill-bar-segmented" style="--skill-color:var(--red);"><span class="segment filled"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">professional certificate</span></div>
+    <div class="skill-row"><span class="skill-tree-line">&#x2502;&nbsp;&nbsp;&nbsp;&#x2514;&#x2500;&#x2500;</span><span class="skill-name">Google AI Essentials</span><div class="skill-bar-segmented" style="--skill-color:var(--red);"><span class="segment filled"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">professional certificate</span></div>
 
     <div style="color:var(--yellow);margin-bottom:2px;">&#x2514;&#x2500;&#x2500; <strong>soft-skills/</strong></div>
     <div class="skill-row"><span class="skill-tree-line">&nbsp;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500;</span><span class="skill-name">Project Management</span><div class="skill-bar-segmented" style="--skill-color:var(--yellow);"><span class="segment filled"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span><span class="segment"></span></div><span class="skill-label">learning</span></div>
