@@ -13,15 +13,15 @@
       </div>
       <div class="tab">
         <span class="tab-label">sankalpkrish.com</span>
-        <span class="tab-close">&#x2715;</span>
+        <button type="button" class="tab-close" aria-label="Close tab">&#x2715;</button>
       </div>
-      <div class="tab-new">+</div>
+      <button type="button" class="tab-new" aria-label="New tab">+</button>
       <div class="titlebar-chevron">&#x2304;</div>
       <div class="titlebar-gap"></div>
       <div class="window-controls">
-        <div class="wc-btn">&#x2014;</div>
-        <div class="wc-btn">&#x2610;</div>
-        <div class="wc-btn close">&#x2715;</div>
+        <button type="button" class="wc-btn" aria-label="Minimize">&#x2014;</button>
+        <button type="button" class="wc-btn" aria-label="Restore">&#x2610;</button>
+        <button type="button" class="wc-btn close" aria-label="Close">&#x2715;</button>
       </div>
     </div>
 
@@ -48,6 +48,13 @@
   import { SansLogo } from '../canvas/SansLogo';
 
   document.addEventListener('DOMContentLoaded', () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      document.getElementById('terminal-island')?.classList.add('show');
+      new TerminalEngine(document.getElementById('terminal-output')!, document.getElementById('terminal-input') as HTMLInputElement);
+      return;
+    }
+
     // 1. Render titlebar logo & setup hover bubble handlers
     SansLogo.render('#sans-logo-titlebar');
     SansLogo.initHover();

@@ -54,19 +54,20 @@
   background: rgba(180, 190, 254, 0.05);
   border-right: 1px solid rgba(180, 190, 254, 0.06);
 }
-.tab-close { color: var(--overlay0); font-size: 10px; padding: 2px; border-radius: 3px; }
-.tab-close:hover { background: rgba(243, 139, 168, 0.2); color: var(--red); cursor: pointer; }
-.tab-new { height: 100%; padding: 0 10px; display: flex; align-items: center; color: var(--overlay0); font-size: 16px; }
+button.tab-close, button.tab-new, button.wc-btn { background: none; border: none; padding: 0; cursor: pointer; font: inherit; }
+button.tab-close { color: var(--overlay0); font-size: 10px; padding: 2px; border-radius: 3px; }
+button.tab-close:hover { background: rgba(243, 139, 168, 0.2); color: var(--red); }
+button.tab-new { height: 100%; padding: 0 10px; display: flex; align-items: center; color: var(--overlay0); font-size: 16px; }
 .titlebar-chevron { padding: 0 8px; color: var(--overlay0); font-size: 11px; }
 .titlebar-gap { flex: 1; }
 .window-controls { display: flex; height: 100%; }
-.wc-btn {
+button.wc-btn {
   width: 44px; height: 100%;
   display: flex; align-items: center; justify-content: center;
-  color: var(--overlay0); font-size: 12px; cursor: pointer;
+  color: var(--overlay0); font-size: 12px;
 }
-.wc-btn:hover { background: rgba(255, 255, 255, 0.07); color: var(--text); }
-.wc-btn.close:hover { background: rgba(243, 139, 168, 0.9); color: #fff; }
+button.wc-btn:hover { background: rgba(255, 255, 255, 0.07); color: var(--text); }
+button.wc-btn.close:hover { background: var(--red); color: var(--crust); }
 
 .terminal-body {
   flex: 1;
@@ -126,10 +127,6 @@
 .cc-output-block { border-left: 2px solid rgba(180, 190, 254, 0.18); padding: 6px 0 6px 12px; margin: 6px 0; }
 .cc-prose { color: var(--text); margin: 4px 0; line-height: 1.7; }
 .cc-prose-dim { color: var(--subtext0); margin: 2px 0; }
-
-/* Skill bars */
-.skill-bar-bg { width: 120px; height: 4px; background: rgba(180,190,254,0.1); border-radius: 2px; flex-shrink: 0; }
-.skill-bar { height: 100%; border-radius: 2px; }
 
 /* Splash layout */
 .splash-container {
@@ -302,6 +299,19 @@
 
 .autocomplete-item.active .autocomplete-desc {
   color: var(--subtext1);
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 1px solid var(--lavender);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Blinking text cursor for forms */
