@@ -6,6 +6,7 @@ import { projects } from './commands/projects';
 import { skills }   from './commands/skills';
 import { contact }  from './commands/contact';
 import { open }     from './commands/open';
+import { clear }    from './commands/clear';
 
 export interface CommandResult {
   html: string;
@@ -35,5 +36,6 @@ export const COMMANDS: Record<string, CommandHandler> = {
   '/skills':   skills,
   '/contact':  contact,
   '/open':     open,
+  '/clear':    clear,
   '/reload':   () => ({ html: '__RELOAD__' }),
 };
