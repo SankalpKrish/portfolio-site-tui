@@ -27,37 +27,50 @@ PII be stripped from committed chunks even where a source contains it.
 `contact.ts` and are deliberately *not* duplicated into corpus prose, so the corpus cannot become
 a second, drift-prone copy of contact details. The `contact` chunk routes to `/contact` instead.
 
-## Unresolved conflicts — these will make `/ask` wrong until fixed
+## Resolved conflicts — decided by the operator 2026-09-26
 
-Three contradictions between the live site and the resume. Not guessed; each chunk states one
-side and needs an operator decision.
+Three contradictions existed between the live site and the resume. The operator has now ruled on
+all three, and the site has been corrected to match. Recorded here because the site was the one
+carrying the error in every case.
 
-| # | Fact                | `main_example.tex`     | Live site                             | Chunk states     |
-| - | ------------------- | ---------------------- | ------------------------------------- | ---------------- |
-| 1 | B.Tech end date     | Aug 2028 (`:129`)      | Jun 2028 (`about.ts:8`)               | "2028" only, month omitted |
-| 2 | IGCSE end date      | May 2022 (`:139`)      | Apr 2022 (`about.ts:13`)              | **resume: May 2022** |
-| 3 | Google certs status | in progress (`:150-152`) | completed June 2026 (`skills.ts:50-51`) | **site: June 2026** |
+| # | Fact            | `main_example.tex` | Was on live site | Now           | Ruled          |
+| - | --------------- | ------------------ | ---------------- | ------------- | -------------- |
+| 1 | B.Tech end date | Aug 2028 (`:129`)  | Jun 2028         | **Aug 2028**  | resume correct |
+| 2 | IGCSE end date  | May 2022 (`:139`)  | Apr 2022         | **May 2022**  | resume correct |
+| 3 | Google certs    | in progress        | completed Jun 2026 | completed Jun 2026 | site already correct |
 
-On #3 the site is almost certainly right: commit `ffa81fe` ("Update both certifications to
-completed June 2026") is newer than the CV. On #1 and #2 there is no such signal, and the CV
-gives explicit month ranges where the site gives its own. **Operator must pick.**
+The corpus and `about.ts` now both state August 2028 and May 2022. `certifications.md` already
+stated June 2026 and needed no change.
 
-Conflicts 1 and 2 also appear on the live site simultaneously, so `/about` is already
-internally inconsistent with `/skills`-era content regardless of what the corpus says.
+## Superseded count and coverage claims — fixed
 
-## Count discrepancies found in the existing site
+`skills.ts` claimed **"Found 36 skills"** while listing **32** rows across **9** categories, and
+omitted PyTorch, TensorFlow, Astro, Next.js, Tailwind and Vitest. The operator directed a
+site-wide correction, so `skills.ts` is now data-driven with the count derived from the array.
 
-Not introduced here; recorded because the corpus must not inherit them.
+It renders **39 skills across 10 categories**:
 
-- `skills.ts:6` claims **"Found 36 skills"**. The file contains **32** rows across **9**
-  categories. (The implementation plan estimated 31 rows / 8 domains — also wrong.)
-- `skills.ts` omits **PyTorch, TensorFlow, Astro, Next.js, React 19, Tailwind and Vitest**, all
-  of which the resume names and several of which are central to shipped work. So `/skills`
-  under-represents the actual stack.
-- `skills.ts:42` rates "Machine Learning" as **learning**, while `main_example.tex:59` claims
-  hands-on work with Demucs v4, Basic Pitch and YAMNet. The site under-rates here.
-- `help.ts:6` claims **"Found 6 commands"** while listing 8. `TerminalEngine.ts:23-31` omits
-  `/clear` from the autocomplete list entirely.
+- new `ai-ml/` group carrying Machine Learning, PyTorch, Librosa and TensorFlow
+- `frontend/` extended with Next.js, Tailwind CSS and Astro
+- `engineering/` extended with Vitest
+- "Machine Learning" upgraded from **learning** to **average**, since the resume documents
+  hands-on work with Demucs v4, Basic Pitch and YAMNet and the site was under-rating it
+
+The count can no longer drift, because nothing states it twice.
+
+Also corrected:
+
+- `help.ts` claimed **"Found 6 commands"** while listing 8. Now 8.
+- `TerminalEngine.ts` omitted **`/clear`** from the autocomplete list entirely, so tab-completing
+  a cleared terminal could not reach the command that clears it. Now present.
+
+## Still outstanding
+
+`help.ts` and `TerminalEngine.ts` each keep their own hard-coded command list. They agree today,
+and they will drift the moment `/ask` is added, because the plan requires registering a command
+in four separate places. The proper fix is a single registry that all four read from; that lands
+with Phase 6, when there is a second command to keep in sync.
+
 
 ## Unread sources
 

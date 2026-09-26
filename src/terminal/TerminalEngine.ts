@@ -26,6 +26,7 @@ export class TerminalEngine {
     { name: '/skills', desc: 'what I know' },
     { name: '/contact', desc: 'get in touch' },
     { name: '/open', desc: 'open a project on GitHub' },
+    { name: '/clear', desc: 'clear the terminal' },
     { name: '/reload', desc: 'reload the website' },
     { name: '/help', desc: 'show this message' },
   ];
