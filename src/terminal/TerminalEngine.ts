@@ -1,6 +1,7 @@
 // src/terminal/TerminalEngine.ts
 import { typewriter } from './typewriter';
 import { COMMANDS, unknownCommandResult, type CommandResult } from './commands';
+import { ASK_EXAMPLES } from './commands/ask';
 
 interface CommandItem {
   name: string;
@@ -25,6 +26,7 @@ export class TerminalEngine {
     { name: '/projects', desc: 'things I\'ve built' },
     { name: '/skills', desc: 'what I know' },
     { name: '/contact', desc: 'get in touch' },
+    { name: '/ask', desc: 'ask me anything' },
     { name: '/open', desc: 'open a project on GitHub' },
     { name: '/clear', desc: 'clear the terminal' },
     { name: '/reload', desc: 'reload the website' },
@@ -55,7 +57,16 @@ export class TerminalEngine {
     const rawVal = this.inputEl.value;
     const val = rawVal.trim();
     if (rawVal.startsWith('/')) {
-      if (rawVal.startsWith('/open') || rawVal.startsWith('/open ')) {
+      if (rawVal.startsWith('/ask ')) {
+        // Offer whole questions rather than command names, so the feature is
+        // discoverable without reading /help first.
+        const arg = rawVal.slice(5).trim().toLowerCase();
+        this.setMatches(
+          ASK_EXAMPLES
+            .filter((q) => q.toLowerCase().includes(arg))
+            .map((q) => ({ name: `/ask ${q}`, desc: '' })),
+        );
+      } else if (rawVal.startsWith('/open') || rawVal.startsWith('/open ')) {
         // Slice out '/open' (5 chars) to get the filter argument
         const arg = rawVal.slice(5).trim().toLowerCase();
         const projectsList = [
@@ -64,50 +75,51 @@ export class TerminalEngine {
           { name: '/open procrastination-engine', desc: 'clock made of tiny clocks' },
         ];
 
-        if (arg === '') {
-          this.autocompleteMatches = projectsList;
-        } else {
-          this.autocompleteMatches = projectsList.filter(proj =>
-            proj.name.slice(6).toLowerCase().startsWith(arg)
-          );
-        }
-
-        if (this.autocompleteMatches.length > 0) {
-          this.autocompleteActive = true;
-          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
-          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
-          this.renderAutocomplete();
-        } else {
-          this.hideAutocomplete();
-        }
+        this.setMatches(
+          arg === ''
+            ? projectsList
+            : projectsList.filter((proj) => proj.name.slice(6).toLowerCase().startsWith(arg)),
+        );
       } else {
         // Regular slash commands autocomplete
-        this.autocompleteMatches = this.commandsList.filter(cmd =>
-          cmd.name.toLowerCase().startsWith(val.toLowerCase())
+        this.setMatches(
+          this.commandsList.filter((cmd) => cmd.name.toLowerCase().startsWith(val.toLowerCase())),
         );
-
-        if (this.autocompleteMatches.length > 0) {
-          this.autocompleteActive = true;
-          this.autocompleteIndex = Math.min(this.autocompleteIndex, this.autocompleteMatches.length - 1);
-          if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
-          this.renderAutocomplete();
-        } else {
-          this.hideAutocomplete();
-        }
       }
     } else {
       this.hideAutocomplete();
     }
   }
 
+  private setMatches(matches: CommandItem[]) {
+    if (matches.length === 0) {
+      this.hideAutocomplete();
+      return;
+    }
+
+    this.autocompleteMatches = matches;
+    this.autocompleteActive = true;
+    this.autocompleteIndex = Math.min(this.autocompleteIndex, matches.length - 1);
+    if (this.autocompleteIndex < 0) this.autocompleteIndex = 0;
+    this.renderAutocomplete();
+  }
+
+  // A completion ending in a space is a prefix waiting for an argument, so the
+  // menu reopens to filter the next thing typed.
+  private complete(name: string): string {
+    return name.endsWith(' ') || name === '/open' || name === '/ask' ? `${name} ` : name;
+  }
+
   private renderAutocomplete() {
     if (!this.autocompleteEl) return;
     this.autocompleteEl.innerHTML = this.autocompleteMatches.map((cmd, idx) => {
       const isActive = this.autocompleteIndex === idx;
-      let displayName = cmd.name;
-      if (displayName.startsWith('/open ')) {
-        displayName = displayName.slice(6);
-      }
+      // Show only the argument for completions that carry one, so the menu reads
+      // as suggestions rather than as a wall of repeated command names.
+      const space = cmd.name.indexOf(' ');
+      const displayName = cmd.name.startsWith('/') && space !== -1
+        ? cmd.name.slice(space + 1)
+        : cmd.name;
       return `
         <div class="autocomplete-item ${isActive ? 'active' : ''}" data-index="${idx}">
           <span class="autocomplete-cmd">${displayName}</span>
@@ -128,13 +140,10 @@ export class TerminalEngine {
     this.autocompleteEl.querySelectorAll('.autocomplete-item').forEach(el => {
       el.addEventListener('click', (e) => {
         const idx = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0');
-        let completed = this.autocompleteMatches[idx].name;
-        if (completed === '/open') {
-          completed = '/open ';
-        }
+        const completed = this.complete(this.autocompleteMatches[idx].name);
         this.inputEl.value = completed;
         this.hideAutocomplete();
-        if (completed === '/open ') {
+        if (completed.endsWith(' ')) {
           this.onInput();
         }
         this.inputEl.focus();
@@ -167,13 +176,10 @@ export class TerminalEngine {
       }
       if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
-        let completed = this.autocompleteMatches[this.autocompleteIndex].name;
-        if (completed === '/open') {
-          completed = '/open ';
-        }
+        const completed = this.complete(this.autocompleteMatches[this.autocompleteIndex].name);
         this.inputEl.value = completed;
         this.hideAutocomplete();
-        if (completed === '/open ') {
+        if (completed.endsWith(' ')) {
           this.onInput();
         }
         return;
@@ -230,7 +236,9 @@ export class TerminalEngine {
 
     const [cmd, ...args] = raw.split(' ');
     const handler = COMMANDS[cmd];
-    const result: CommandResult = handler ? handler(args) : unknownCommandResult(cmd);
+    // Awaited because /ask performs a network call. The other eight handlers
+    // return synchronously and are unaffected.
+    const result: CommandResult = await (handler ? handler(args) : unknownCommandResult(cmd));
 
     if (result.html === '__CLEAR__') {
       this.clearOutput();
@@ -245,6 +253,13 @@ export class TerminalEngine {
     const responseDiv = document.createElement('div');
     this.outputEl.appendChild(responseDiv);
     await typewriter(responseDiv, result.html, 4);
+
+    // Progressive renderers take the element over once the opening state has
+    // been typed. The typewriter still owns that state, so a streaming command
+    // does not bypass the terminal's rendering.
+    if (result.stream) {
+      await result.stream(responseDiv);
+    }
 
     // After splash types in, render the Sans logo canvas
     if (raw === 'splash') {
