@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(scripts/start-server.sh *)"
+      "Bash(scripts/start-server.sh *)",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit *)",
+      "Skill(impeccable)"
     ]
   }
 }
