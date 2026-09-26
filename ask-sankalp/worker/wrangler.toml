@@ -4,13 +4,17 @@ main = "src/index.ts"
 compatibility_date = "2026-09-26"
 compatibility_flags = ["nodejs_compat"]
 
-# 1024 dims and cosine are immutable after creation. Measured, not assumed:
-# @cf/qwen/qwen3-embedding-0.6b returned exactly 1024 dims in Phase 0.
+# Not a credential. It appears in dashboard URLs and in wrangler's own output,
+# and is committed in wrangler.toml across the ecosystem.
+account_id = "96e3ee8bcde612535b6870b54f526cf4"
+
+# The index is created with 1024 dims and cosine, and both are immutable
+# afterwards. Measured in Phase 0, not assumed: @cf/qwen/qwen3-embedding-0.6b
+# returned exactly 1024 dimensions. The binding itself takes neither field --
+# wrangler warns "unexpected fields" if you repeat them here.
 [[vectorize]]
 binding = "VECTORIZE"
 index_name = "ask-sankalp-content"
-dimensions = 1024
-metric = "cosine"
 
 # limit 20 / period 60, not lower. Phase 0 measured this binding at roughly
 # 2.3x overshoot on an 8-call test against a limit of 3, and Cloudflare

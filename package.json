@@ -12,6 +12,7 @@
     "astro": "astro",
     "ingest": "node ask-sankalp/scripts/ingest.mjs",
     "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
+    "calibrate": "node ask-sankalp/scripts/calibrate-vector.mjs",
     "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs",
     "test:guardrails": "node ask-sankalp/scripts/test-guardrails.mjs",
     "typecheck:worker": "tsc -p ask-sankalp/worker/tsconfig.json"

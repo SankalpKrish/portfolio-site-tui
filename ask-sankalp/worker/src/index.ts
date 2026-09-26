@@ -40,16 +40,6 @@ const INDEX = bm25Index as unknown as Index;
 const ALLOWED_ORIGIN = 'https://sankalpkrish.com';
 const ALLOWED_ORIGINS = new Set([ALLOWED_ORIGIN, 'http://localhost:4321']);
 
-// Cosine floor for the vector arm. BM25 decides answerability by coverage; the
-// vector arm has no such test, so without a floor it will confidently retrieve
-// a topically-adjacent chunk for a question the corpus never covers.
-//
-// UNCALIBRATED. This needs measuring against the real index -- "what is his
-// salary" and "what did he build" both return their best match, and only the
-// scores distinguish them. Until that is done, treat this as the most likely
-// source of a confidently wrong answer.
-const MIN_VECTOR_SCORE = 0.45;
-
 const TOP_K = 20;
 const TOP_N = 5;
 const MAX_QUERY_CHARS = 300;
@@ -170,6 +160,8 @@ export default {
 
     if (!question) return jsonResponse({ error: 'empty question' }, 400, origin);
 
+    const started = Date.now();
+
     if (isTrivial(question)) {
       return new Response(
         refusalStream(
@@ -196,44 +188,50 @@ export default {
       return new Response(cached.body, { headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'X-Ask-Cache': 'HIT' } });
     }
 
-    const started = Date.now();
-    let hits;
-    try {
-      const vector = createVectorizeRetriever(env, CORPUS.chunks);
-      const guardedVector: typeof vector = {
-        ...vector,
-        async retrieve(q, k) {
-          const found = await vector.retrieve(q, k);
-          return found.filter((h) => h.score >= MIN_VECTOR_SCORE);
-        },
-      };
+    // BM25 term coverage is the ONLY admission test. Measured against the real
+    // index across 19 queries: the vector arm cannot do this job, because the
+    // two score populations overlap.
+    //
+    //   lowest answerable top-score : 0.379
+    //   highest refusal   top-score : 0.548
+    //
+    // No threshold separates them. A floor of 0.45 -- the first guess -- let 6
+    // of 9 unanswerable questions through, so "is he a terraform expert" would
+    // have been answered confidently from the programming-skills chunk. BM25
+    // coverage refused all 9.
+    //
+    // So the arms have different jobs. BM25 decides whether a question is
+    // answerable at all; the vector arm only reorders chunks once that is
+    // settled, which is what rescues paraphrases with no lexical overlap.
+    //
+    // Running coverage first is also cheaper. A refused question costs no
+    // Vectorize query at all, and a Vectorize query is the single most
+    // expensive thing here at ~122,880 dimensions.
+    const lexicalRetriever = createBm25Retriever(INDEX, CORPUS.chunks);
+    const lexical = await lexicalRetriever.retrieve(question, TOP_K);
 
-      const hybrid = createHybridRetriever(
-        [createBm25Retriever(INDEX, CORPUS.chunks), guardedVector],
-        TOP_N,
-      );
-      hits = await hybrid.retrieve(question, TOP_K);
-    } catch (err) {
-      log({ outcome: 'retrieval-failed', ms: Date.now() - started, error: String(err) });
-      return new Response(
-        refusalStream(
-          "I can't reach my own notes right now, so I'm not going to guess at an answer. Email is on the /contact page.",
-          'degraded',
-        ),
-        { status: 200, headers: { 'Content-Type': 'application/x-ndjson', ...headers } },
-      );
-    }
-
-    const ids = hits.map((h) => h.id);
-
-    // No chunks means no grounding. Refusing here costs no model call, which is
-    // the difference between a budget that lasts a month and one that does not.
-    if (hits.length === 0) {
+    if (lexical.length === 0) {
       log({ outcome: 'no-coverage', ms: Date.now() - started, question });
       return new Response(refusalStream(refusalText('no-coverage'), 'no-coverage'), {
         headers: { 'Content-Type': 'application/x-ndjson', ...headers },
       });
     }
+
+    let hits;
+    try {
+      const hybrid = createHybridRetriever(
+        [lexicalRetriever, createVectorizeRetriever(env, CORPUS.chunks)],
+        TOP_N,
+      );
+      hits = await hybrid.retrieve(question, TOP_K);
+    } catch (err) {
+      // The lexical arm already succeeded, so this is degraded rather than
+      // broken: answer from BM25 alone instead of pretending the notes are gone.
+      log({ outcome: 'vector-failed', ms: Date.now() - started, error: String(err) });
+      hits = lexical.slice(0, TOP_N);
+    }
+
+    const ids = hits.map((h) => h.id);
 
     const sources = hits
       .map((h) => `### [${h.id}] ${h.title}\n${h.text}`)
@@ -349,7 +347,6 @@ export default {
       retrieved: ids,
       rrfK: RRF_K,
       topN: TOP_N,
-      minVector: MIN_VECTOR_SCORE,
     });
 
     return new Response(response.body, {
