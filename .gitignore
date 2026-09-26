@@ -5,3 +5,7 @@ dist/
 .env.*
 !.env.example
 .superpowers/
+
+# Phase 0 probe artifacts: generated embeddings and local wrangler state
+ask-sankalp/probe/vectors.ndjson
+.wrangler/
