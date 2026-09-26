@@ -1,0 +1,102 @@
+{
+  "availability": {
+    "sha256": "18ea708b586094c5691a590081cdd8e76fc85e560b72bad58e5961a0acd4028e",
+    "file": "availability.md"
+  },
+  "certifications": {
+    "sha256": "b27d48075738156412f338b7a1b56a159b6c4a5a3becaf85cd65bb1f4169cf59",
+    "file": "certifications.md"
+  },
+  "contact": {
+    "sha256": "e2e3515bc6ee7bd0a1a8fb756eecaf0ede3707ab9d83362831be25a61e405e9f",
+    "file": "contact.md"
+  },
+  "education-btech": {
+    "sha256": "c1517a3287872a02810b1c713ddd2b01db29d7a04f55308f384c028755020ad9",
+    "file": "education-btech.md"
+  },
+  "education-previous": {
+    "sha256": "842c11d81096749305ceaafbf3e31632e4b6544cd019ce78593aea668040a0f8",
+    "file": "education-previous.md"
+  },
+  "experience-open-computer-frontend": {
+    "sha256": "fbb7031c15cc909269d242a28efb5da17546d1494139f3169ba112cf00b0ec2a",
+    "file": "experience-open-computer-frontend.md"
+  },
+  "experience-open-computer": {
+    "sha256": "e101e4ff7c631605553a3a0ca7d244a19582feacd0daa0d3bc2f95a556bbb0c3",
+    "file": "experience-open-computer.md"
+  },
+  "identity": {
+    "sha256": "035589b4fd682fc0fc2614aad9c2165d07422e0a68e11a5e739d43c31d39ed15",
+    "file": "identity.md"
+  },
+  "interests": {
+    "sha256": "c7923070f97f0a4c046e3b07dbe7bc066eccc719cef898e29aa7bda50e3025a1",
+    "file": "interests.md"
+  },
+  "languages": {
+    "sha256": "ceaba207113ba7a7b6057d3aacc003577dcc127b92503e97f646b735c4b3aa5a",
+    "file": "languages.md"
+  },
+  "project-midi-ai-contributions": {
+    "sha256": "e8df67d7a555542f935b78085ced6b3cb3b3d239f2e089fb41ac914332cfcabd",
+    "file": "project-midi-ai-contributions.md"
+  },
+  "project-midi-ai-pipeline": {
+    "sha256": "9b9aa23db415fd0e20c82410b57ec2c85d80f0b6c7ab533f171e3e62b25fecbb",
+    "file": "project-midi-ai-pipeline.md"
+  },
+  "project-midi-ai": {
+    "sha256": "ef25a985d901733480cb80d5ea6d0d551627a39783d89c2f972d8590451d62ce",
+    "file": "project-midi-ai.md"
+  },
+  "project-open-slides-features": {
+    "sha256": "dba65e3fd558a00bcfe9bd0a7c499573947a52f24d36d7ff0114288d796bb0c5",
+    "file": "project-open-slides-features.md"
+  },
+  "project-open-slides-stack": {
+    "sha256": "219cc278489419f100b3c421fbf8de3d8688cd8595de5ae3ce1a8777e44532e1",
+    "file": "project-open-slides-stack.md"
+  },
+  "project-open-slides": {
+    "sha256": "75dcf6b34db9298e1826240c64ba7cc21ff6d2c568e0b8b22e20e567cac6fe3a",
+    "file": "project-open-slides.md"
+  },
+  "project-opencomputer": {
+    "sha256": "d0c2f748b8421fa35cf325ae99ce16a726c4c6fa4f9fe70eae855def97aa7f77",
+    "file": "project-opencomputer.md"
+  },
+  "project-procrastination-engine": {
+    "sha256": "d9cf9a212a0713f7704f65b0091847ef520e747d156b5b981e285694a3994d3b",
+    "file": "project-procrastination-engine.md"
+  },
+  "skills-backend": {
+    "sha256": "301a20416fc1a775ef0e7d2fca575fefe384a1fcee0223e551ccc743669f73cc",
+    "file": "skills-backend.md"
+  },
+  "skills-data-cloud": {
+    "sha256": "adc77ccd0a18cd5a975babb6e89aa914439a140a51e583c89dfb9a9e559240e1",
+    "file": "skills-data-cloud.md"
+  },
+  "skills-frontend": {
+    "sha256": "dd7d2f659c12cab3d3ee28d34f9a4a93225a64e41f30a5e160593c27d3c29d64",
+    "file": "skills-frontend.md"
+  },
+  "skills-llm-agents": {
+    "sha256": "04604135ae3a8ef84a6710b06fde310848825a4ef2f64f4930f0143fe7bbcad0",
+    "file": "skills-llm-agents.md"
+  },
+  "skills-ml": {
+    "sha256": "2423a4da8b4bc22bbb5d16038a059c16942559c5164f9e26079dfb9f2e0b8334",
+    "file": "skills-ml.md"
+  },
+  "skills-programming": {
+    "sha256": "148eb5c86836a94194abdc2a52b4a038e88648c40133ff4e37745a5e1a74fe25",
+    "file": "skills-programming.md"
+  },
+  "working-style": {
+    "sha256": "b99367d1b7ce74a26652dfd1fc88050051db3e6c922f029c4729307cf831f04b",
+    "file": "working-style.md"
+  }
+}

@@ -3,13 +3,16 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "ingest": "node ask-sankalp/scripts/ingest.mjs",
+    "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
+    "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
