@@ -22,8 +22,11 @@ interface Env {
   AI: Ai;
   VECTORIZE: Vectorize;
   ASK_RATE_LIMITER: RateLimit;
-  GEMINI_API_KEY: string;
-  AI_GATEWAY_BASE: string;
+  // Deliberately provider-neutral. The prompt demands strict grounding, and
+  // provider-specific key names make swapping models look like a bigger change
+  // than it is -- the request and response shapes are OpenAI-compatible.
+  CHAT_API_KEY: string;
+  CHAT_BASE_URL: string;
   CHAT_MODEL: string;
 }
 
@@ -244,10 +247,10 @@ export default {
 
     let upstream: Response;
     try {
-      upstream = await fetch(`${env.AI_GATEWAY_BASE}/v1/chat/completions`, {
+      upstream = await fetch(`${env.CHAT_BASE_URL}/chat/completions`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${env.GEMINI_API_KEY}`,
+          Authorization: `Bearer ${env.CHAT_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ model: env.CHAT_MODEL, stream: true, messages, max_tokens: 500 }),
