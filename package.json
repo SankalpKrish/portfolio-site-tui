@@ -12,7 +12,9 @@
     "astro": "astro",
     "ingest": "node ask-sankalp/scripts/ingest.mjs",
     "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
-    "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs"
+    "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs",
+    "test:guardrails": "node ask-sankalp/scripts/test-guardrails.mjs",
+    "typecheck:worker": "tsc -p ask-sankalp/worker/tsconfig.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

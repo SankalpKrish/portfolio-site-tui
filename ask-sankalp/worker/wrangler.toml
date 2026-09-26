@@ -1,0 +1,33 @@
+# ask-sankalp/worker/wrangler.toml
+name = "ask-sankalp"
+main = "src/index.ts"
+compatibility_date = "2026-09-26"
+compatibility_flags = ["nodejs_compat"]
+
+# 1024 dims and cosine are immutable after creation. Measured, not assumed:
+# @cf/qwen/qwen3-embedding-0.6b returned exactly 1024 dims in Phase 0.
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "ask-sankalp-content"
+dimensions = 1024
+metric = "cosine"
+
+# limit 20 / period 60, not lower. Phase 0 measured this binding at roughly
+# 2.3x overshoot on an 8-call test against a limit of 3, and Cloudflare
+# explicitly warns that IP and region keys are often shared. A tight limit here
+# blocks real visitors behind a university or carrier NAT. This is a speed bump
+# against casual abuse, not budget protection -- the cache is the budget.
+[[ratelimits]]
+name = "ASK_RATE_LIMITER"
+namespace_id = "4711"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60
+
+[vars]
+# AI Gateway base is the full provider path with no /v1 suffix:
+#   https://gateway.ai.cloudflare.com/v1/<account_id>/<gateway_id>/google-ai-studio
+# Override locally with a .dev.vars, never in git.
+AI_GATEWAY_BASE = "https://gateway.ai.cloudflare.com/v1/REPLACE_ACCOUNT/REPLACE_GATEWAY/google-ai-studio"
+CHAT_MODEL = "gemini-2.5-flash"

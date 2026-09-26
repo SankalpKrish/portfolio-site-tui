@@ -160,7 +160,15 @@ async function embed(texts) {
 async function emit(chunks) {
   await mkdir(DATA_DIR, { recursive: true });
 
-  const corpus = chunks.map(({ id, title, topic, text }) => ({ id, title, topic, text }));
+  // The version hash goes into the cache key. Without it, an answer generated
+  // from last month's corpus is served after the facts change, and nothing in
+  // the response says so.
+  const version = createHash('sha256')
+    .update(chunks.map((c) => `${c.id}:${c.sha256}`).join('|'))
+    .digest('hex')
+    .slice(0, 16);
+
+  const corpus = { version, chunks: chunks.map(({ id, title, topic, text }) => ({ id, title, topic, text })) };
   await writeFile(new URL('./corpus.json', DATA_DIR), JSON.stringify(corpus));
 
   const index = buildIndex(chunks);
@@ -171,6 +179,7 @@ async function emit(chunks) {
 
   const vectors = Object.values(index.postings).reduce((n, p) => n + p.length, 0);
   console.log(`chunks:     ${chunks.length}`);
+  console.log(`version:    ${version}`);
   console.log(`corpus:     ${(JSON.stringify(corpus).length / 1024).toFixed(1)} KB`);
   console.log(`index:      ${(JSON.stringify(index).length / 1024).toFixed(1)} KB`);
   console.log(`            ${Object.keys(index.postings).length} terms, ${vectors} postings`);

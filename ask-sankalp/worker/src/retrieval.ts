@@ -193,9 +193,17 @@ export function createVectorizeRetriever(
   return {
     name: 'vectorize',
     async retrieve(query, k) {
-      const embedded = await env.AI.run('@cf/qwen/qwen3-embedding-0.6b', { text: [query] });
-      const raw = (embedded as { data?: number[][] }).data ?? (embedded as number[][]);
-      const vector = Array.isArray(raw?.[0]) ? raw[0] : raw;
+      const embedded: unknown = await env.AI.run('@cf/qwen/qwen3-embedding-0.6b', { text: [query] });
+
+      // Workers AI returns { shape, data } for array input but a bare array for
+      // single input. Normalise both, and never hand a nested array to query()
+      // -- Vectorize rejects it with an opaque error.
+      const rows: number[][] = Array.isArray(embedded) && Array.isArray(embedded[0])
+        ? (embedded as number[][])
+        : ((embedded as { data?: number[][] })?.data ?? []);
+
+      const vector: number[] = Array.isArray(rows[0]) ? rows[0] : [];
+      if (vector.length === 0) return [];
 
       const results = await env.VECTORIZE.query(vector, {
         topK: k,

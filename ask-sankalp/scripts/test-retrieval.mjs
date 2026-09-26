@@ -14,8 +14,16 @@ import {
 } from '../worker/src/retrieval.ts';
 
 const dataDir = new URL('../worker/src/data/', import.meta.url);
-const corpus = JSON.parse(await readFile(new URL('corpus.json', dataDir), 'utf8'));
+const corpusFile = JSON.parse(await readFile(new URL('corpus.json', dataDir), 'utf8'));
 const index = JSON.parse(await readFile(new URL('index.json', dataDir), 'utf8'));
+
+// corpus.json is versioned so the Worker can key its answer cache on it. The
+// shape is asserted here because a silent mismatch shows up as a confusing
+// TypeError deep inside the ranker rather than as a failed test.
+if (!corpusFile.version || !Array.isArray(corpusFile.chunks)) {
+  throw new Error('corpus.json must be { version, chunks }');
+}
+const corpus = corpusFile.chunks;
 
 const bm25 = createBm25Retriever(index, corpus);
 
