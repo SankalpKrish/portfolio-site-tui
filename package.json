@@ -14,6 +14,8 @@
     "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
     "calibrate": "node ask-sankalp/scripts/calibrate-vector.mjs",
     "probe:models": "node ask-sankalp/scripts/probe-models.mjs",
+    "bench:models": "node ask-sankalp/scripts/bench-models.mjs",
+    "ask": "node ask-sankalp/scripts/ask.mjs",
     "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs",
     "test:guardrails": "node ask-sankalp/scripts/test-guardrails.mjs",
     "typecheck:worker": "tsc -p ask-sankalp/worker/tsconfig.json"

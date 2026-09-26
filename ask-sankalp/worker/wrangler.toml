@@ -35,8 +35,32 @@ namespace_id = "4711"
 #   Google : https://generativelanguage.googleapis.com/v1beta/openai
 # Override locally with a .dev.vars, never in git.
 CHAT_BASE_URL = "https://integrate.api.nvidia.com/v1"
-CHAT_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"
 
+# Chosen by measurement, not reputation. `npm run probe:models` grades models on
+# the two things this system needs: answer a covered question from the given
+# sources, and cite the chunk id it used. `npm run bench:models` times them.
+#
+#   model                            ttft     total    chars  rate
+#   z-ai/glm-5.3-flash               29948ms  45147ms    483   11/s   <- in use
+#   nvidia/nemotron-3.5-lightning-30b 11876ms  21431ms   1868   87/s
+#   moonshotai/kimi-k3               timeout >120s
+#
+# Nemotron is 2.5x faster but streams its reasoning trace verbatim -- "Here's a
+# thinking process: 1. Analyze User Input..." -- which is unusable in a recruiter
+# facing terminal. chat_template_kwargs suppresses it, but that variant measured
+# 70421ms, slower than glm, and dropped the citation. glm is slower to first
+# token but its answers were read directly and cite correctly every time.
+#
+# The free tier rotates models, so re-run both scripts rather than trusting this
+# comment indefinitely. The Worker sends chat_template_kwargs regardless, so a
+# future swap to a reasoning model will not start leaking scratchpads.
+CHAT_MODEL = "z-ai/glm-5.3-flash"
+
+# The free tier is ~40 requests/minute and NVIDIA staff state increases are not
+# granted. The rate limit binding below is 20 per 60s, deliberately about half
+# that ceiling, so our own limiter throttles before NVIDIA's does. The monthly
+# budget is ~244 queries, so throughput is not a real constraint.
+#
 # The key goes in as a secret, never a var:
 #   npx wrangler secret put CHAT_API_KEY
 # Keep it out of chat transcripts and shell history by writing it to

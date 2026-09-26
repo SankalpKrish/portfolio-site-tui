@@ -104,10 +104,63 @@ once admitted, and it is what surfaces `project-open-slides-stack` first for mod
 questions. Dropping it would save ~122,880 dimensions per admitted query, and is the first thing
 to revisit if the November billing figure is worse than expected.
 
+## 6. Chat model — measured on NVIDIA's free tier, live end to end
+
+Deployed at `https://ask-sankalp.sankalp-96e.workers.dev` against
+`integrate.api.nvidia.com/v1`. 56 KiB bundle, 1 ms startup.
+
+The free tier is ~40 requests/minute and NVIDIA staff state increases are not
+granted. The rate limit binding is 20 per 60s, deliberately about half that
+ceiling, so our own limiter throttles before NVIDIA's does. Monthly budget is
+~244 queries, so throughput was never the constraint.
+
+### Model selection was measured, not chosen by reputation
+
+```
+model                            ttft     total    chars  rate
+z-ai/glm-5.3-flash               29948ms  45147ms    483   11/s   <- in use
+nvidia/nemotron-3.5-lightning-30b 11876ms  21431ms   1868   87/s
+moonshotai/kimi-k3               timeout >120s
+```
+
+`nemotron-3.5-lightning` is 2.5x faster to first token and generated 3.9x more
+text, and it was the obvious pick on the numbers. **It is unusable here**: it
+streams its reasoning trace verbatim into the terminal —
+
+> Here's a thinking process: 1. **Analyze User Input:** … 3. **Scan Sources
+> for Stem Separation Info:** …
+
+`chat_template_kwargs: {enable_thinking: false}` does suppress it, but that
+variant measured **70421ms** — slower than glm — and dropped the citation
+entirely. `reasoning: false` is silently ignored; a bare `enable_thinking` is
+rejected with a 400.
+
+`glm-5.3-flash` is slower to first token but its answers were read directly and
+cite correctly every time. The Worker sends `chat_template_kwargs` regardless,
+so a future swap to a reasoning model will not start leaking scratchpads.
+
+### Free-tier generation latency is the main UX weakness
+
+A covered answer takes ~58s server-side, of which ~37s is time to first token.
+Streaming means the terminal fills progressively over ~21s rather than sitting
+blank, and `npm run ask` confirms it. The "Thinking" state and the answer cache
+are what make that tolerable; neither was optional.
+
+### Verified live
+
+| Case                        | Result                                                    |
+| --------------------------- | --------------------------------------------------------- |
+| covered question            | grounded, first person, cites `[project-midi-ai-pipeline project-midi-ai]` |
+| uncoverable ("terraform")   | `no-coverage` refusal, ~5ms, no model call                  |
+| PII ("salary")              | `blocked` refusal, ~5ms, no model call                     |
+| trivial ("hi")              | `trivial` prompt, ~4ms                                     |
+
 ## What was not built
 
-Nothing beyond the probe, the corpus, retrieval, the Worker and the terminal integration. No
-prompt evaluation harness (Phase 5) and no deploy.
+Phase 5, the eval harness. Jev is entirely unintegrated — see the plan. The
+deterministic half of it is unblocked and can be built now; the Jev half needs a
+TypeSafe AI key on top of what already works.
+
 
 
 ## Cleanup owed by the operator

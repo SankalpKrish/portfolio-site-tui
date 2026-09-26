@@ -37,6 +37,13 @@ type Index = Bm25Index;
 // and rejects the [doc, tf] shape the ranker relies on. The cast is checked by
 // the build step emitting both files from the same generator, and the runtime
 // shape is exercised by every retrieval test.
+// Bump whenever SYSTEM_PROMPT, CHAT_MODEL, TOP_K, TOP_N, RRF_K or the corpus
+// changes. The cache had corpus version but not prompt or model, so editing the
+// prompt kept serving the previous generation for the full 30-day TTL -- a
+// reasoning trace that leaked into the terminal stayed live after the fix
+// shipped, returned as a cache HIT.
+const PROMPT_VERSION = '3';
+
 const CORPUS = corpusData as unknown as Corpus;
 const INDEX = bm25Index as unknown as Index;
 
@@ -75,9 +82,8 @@ function corsHeaders(origin: string | null): Record<string, string> {
 // minimum TTL, neither of which suits an answer cache.
 function cacheKey(query: string): Request {
   const normalised = query.trim().toLowerCase().replace(/\s+/g, ' ');
-  return new Request(`https://cache.internal/ask?v=${CORPUS.version}&q=${encodeURIComponent(normalised)}`, {
-    method: 'GET',
-  });
+  const key = `v=${CORPUS.version}&p=${PROMPT_VERSION}&q=${encodeURIComponent(normalised)}`;
+  return new Request(`https://cache.internal/ask?${key}`, { method: 'GET' });
 }
 
 async function readCache(query: string): Promise<Response | null> {
@@ -89,28 +95,43 @@ async function readCache(query: string): Promise<Response | null> {
   });
 }
 
-async function writeCache(query: string, stream: ReadableStream): Promise<Response> {
-  // The body is buffered so it can be both streamed to the client and stored.
-  // At the few-hundred-byte answer size this costs nothing against the 10ms
-  // budget; a genuinely large response would need a tee instead.
-  const buffered = await new Response(stream).arrayBuffer();
-  await caches.default.put(
-    cacheKey(query),
-    new Response(buffered, {
-      headers: {
-        'Content-Type': 'application/x-ndjson',
-        'Cache-Control': `max-age=${CACHE_TTL_SECONDS}`,
-      },
-    }),
-  );
-  return new Response(buffered, { headers: { 'Content-Type': 'application/x-ndjson' } });
-}
-
 // Newline-delimited JSON rather than raw SSE: the client needs text deltas and
 // a separate citation payload, and re-deriving that from an OpenAI-shaped SSE
 // stream would mean parsing and discarding most of what the gateway sends.
 function ndjson(payload: unknown): Uint8Array {
   return new TextEncoder().encode(`${JSON.stringify(payload)}\n`);
+}
+
+// Splits the stream instead of buffering it.
+//
+// The previous version drained the whole stream with arrayBuffer() before
+// returning, which looked correct in a fast local test and was not: the first
+// real generation took 66 seconds, and the client received all 816 characters in
+// a single 5ms burst at the end. Streaming to the client and caching the same
+// bytes are independent consumers, so tee() is the right shape -- the client
+// starts receiving immediately and the cache fills in parallel.
+//
+// The cache write is deliberately not awaited. Awaiting it would reintroduce
+// exactly the latency this avoids, and a failed cache write is not worth failing
+// a real answer over.
+async function streamAndCache(query: string, stream: ReadableStream, ctx: ExecutionContext): Promise<Response> {
+  const [toClient, toCache] = stream.tee();
+
+  const cacheWrite = caches.default
+    .put(
+      cacheKey(query),
+      new Response(toCache, {
+        headers: {
+          'Content-Type': 'application/x-ndjson',
+          'Cache-Control': `max-age=${CACHE_TTL_SECONDS}`,
+        },
+      }),
+    )
+    .catch((err) => log({ outcome: 'cache-write-failed', error: String(err) }));
+
+  ctx.waitUntil(cacheWrite);
+
+  return new Response(toClient, { headers: { 'Content-Type': 'application/x-ndjson' } });
 }
 
 function refusalStream(text: string, reason: string): ReadableStream {
@@ -133,7 +154,7 @@ function jsonResponse(body: unknown, status: number, origin: string | null): Res
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const origin = request.headers.get('Origin');
     const headers = corsHeaders(origin);
 
@@ -253,7 +274,19 @@ export default {
           Authorization: `Bearer ${env.CHAT_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ model: env.CHAT_MODEL, stream: true, messages, max_tokens: 500 }),
+        body: JSON.stringify({
+          model: env.CHAT_MODEL,
+          stream: true,
+          messages,
+          max_tokens: 500,
+          // Harmless on a non-reasoning model, essential on a reasoning one.
+          // Nemotron models otherwise stream their scratchpad verbatim -- "Here's
+          // a thinking process: 1. Analyze User Input..." -- straight into the
+          // terminal. Verified that `reasoning: false` is silently ignored and a
+          // bare `enable_thinking` is rejected with a 400, so this is the form
+          // that actually works.
+          chat_template_kwargs: { enable_thinking: false },
+        }),
       });
     } catch (err) {
       log({ outcome: 'gateway-failed', ms: Date.now() - started, error: String(err) });
@@ -341,7 +374,7 @@ export default {
       },
     });
 
-    const response = await writeCache(question, out);
+    const response = await streamAndCache(question, out, ctx);
 
     log({
       outcome: 'answered',
