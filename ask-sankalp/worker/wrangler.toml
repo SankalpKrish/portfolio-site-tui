@@ -1,0 +1,67 @@
+# ask-sankalp/worker/wrangler.toml
+name = "ask-sankalp"
+main = "src/index.ts"
+compatibility_date = "2026-09-26"
+compatibility_flags = ["nodejs_compat"]
+
+# Not a credential. It appears in dashboard URLs and in wrangler's own output,
+# and is committed in wrangler.toml across the ecosystem.
+account_id = "96e3ee8bcde612535b6870b54f526cf4"
+
+# The index is created with 1024 dims and cosine, and both are immutable
+# afterwards. Measured in Phase 0, not assumed: @cf/qwen/qwen3-embedding-0.6b
+# returned exactly 1024 dimensions. The binding itself takes neither field --
+# wrangler warns "unexpected fields" if you repeat them here.
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "ask-sankalp-content"
+
+# limit 20 / period 60, not lower. Phase 0 measured this binding at roughly
+# 2.3x overshoot on an 8-call test against a limit of 3, and Cloudflare
+# explicitly warns that IP and region keys are often shared. A tight limit here
+# blocks real visitors behind a university or carrier NAT. This is a speed bump
+# against casual abuse, not budget protection -- the cache is the budget.
+[[ratelimits]]
+name = "ASK_RATE_LIMITER"
+namespace_id = "4711"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60
+
+[vars]
+# Provider-neutral. The suffix /chat/completions is appended by the Worker.
+#   NVIDIA : https://integrate.api.nvidia.com/v1
+#   Google : https://generativelanguage.googleapis.com/v1beta/openai
+# Override locally with a .dev.vars, never in git.
+CHAT_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+# Chosen by measurement, not reputation. `npm run probe:models` grades models on
+# the two things this system needs: answer a covered question from the given
+# sources, and cite the chunk id it used. `npm run bench:models` times them.
+#
+#   model                            ttft     total    chars  rate
+#   z-ai/glm-5.3-flash               29948ms  45147ms    483   11/s   <- in use
+#   nvidia/nemotron-3.5-lightning-30b 11876ms  21431ms   1868   87/s
+#   moonshotai/kimi-k3               timeout >120s
+#
+# Nemotron is 2.5x faster but streams its reasoning trace verbatim -- "Here's a
+# thinking process: 1. Analyze User Input..." -- which is unusable in a recruiter
+# facing terminal. chat_template_kwargs suppresses it, but that variant measured
+# 70421ms, slower than glm, and dropped the citation. glm is slower to first
+# token but its answers were read directly and cite correctly every time.
+#
+# The free tier rotates models, so re-run both scripts rather than trusting this
+# comment indefinitely. The Worker sends chat_template_kwargs regardless, so a
+# future swap to a reasoning model will not start leaking scratchpads.
+CHAT_MODEL = "z-ai/glm-5.3-flash"
+
+# The free tier is ~40 requests/minute and NVIDIA staff state increases are not
+# granted. The rate limit binding below is 20 per 60s, deliberately about half
+# that ceiling, so our own limiter throttles before NVIDIA's does. The monthly
+# budget is ~244 queries, so throughput is not a real constraint.
+#
+# The key goes in as a secret, never a var:
+#   npx wrangler secret put CHAT_API_KEY
+# Keep it out of chat transcripts and shell history by writing it to
+# .secrets.local (gitignored) and using `wrangler secret bulk`.

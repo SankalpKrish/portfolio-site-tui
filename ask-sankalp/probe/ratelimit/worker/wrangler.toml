@@ -1,0 +1,13 @@
+# ask-sankalp/probe/ratelimit/worker/wrangler.toml
+name = "ask-sankalp-ratelimit-probe"
+main = "src/index.ts"
+compatibility_date = "2026-09-26"
+
+# limit must be low so a handful of calls proves the counter moves.
+[[ratelimits]]
+name = "ASK_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 3
+  period = 60

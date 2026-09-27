@@ -3,13 +3,23 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "ingest": "node ask-sankalp/scripts/ingest.mjs",
+    "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
+    "calibrate": "node ask-sankalp/scripts/calibrate-vector.mjs",
+    "verify-index": "node ask-sankalp/scripts/verify-index.mjs",
+    "probe:models": "node ask-sankalp/scripts/probe-models.mjs",
+    "bench:models": "node ask-sankalp/scripts/bench-models.mjs",
+    "ask": "node ask-sankalp/scripts/ask.mjs",
+    "test:retrieval": "node ask-sankalp/scripts/test-retrieval.mjs",
+    "test:guardrails": "node ask-sankalp/scripts/test-guardrails.mjs",
+    "typecheck:worker": "tsc -p ask-sankalp/worker/tsconfig.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
