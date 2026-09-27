@@ -201,7 +201,9 @@ button.wc-btn.close:hover { background: var(--red); color: var(--crust); }
   color: var(--overlay1);
   font-size: 12px;
 }
-/* Animating opacity only, per the project rule against animating layout. */
+/* Keyframes `content`, not opacity. The project rule bans animating layout
+   properties, and `content` is not one, so the rule holds -- but the effect is
+   a four-step ellipsis, not a fade. */
 .cc-ask-dots::after {
   content: '';
   animation: cc-ask-dots 1.2s steps(4, end) infinite;

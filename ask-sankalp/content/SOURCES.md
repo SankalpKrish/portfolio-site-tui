@@ -21,7 +21,10 @@ production; the `.tex` is a local file that has already drifted once (see confli
 Decision 15 is that raw sources are never committed, and the operator additionally directed that
 PII be stripped from committed chunks even where a source contains it.
 
-**Never committed:** the phone number `+91 9741054004`, from `main_example.tex:36`.
+**Never committed:** the phone number in `main_example.tex:36`. The literal is redacted here too —
+this file is tracked, and the repository is public, so writing the number down in a note that claims
+the number was never written down is self-refuting. Recover it from the source file if it is ever
+needed.
 
 **Not restated, only pointed at:** email, LinkedIn and GitHub. These are already public in
 `contact.ts` and are deliberately *not* duplicated into corpus prose, so the corpus cannot become

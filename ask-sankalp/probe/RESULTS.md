@@ -157,15 +157,29 @@ are what make that tolerable; neither was optional.
 
 ## What was not built
 
-Phase 5, the eval harness. Jev is entirely unintegrated — see the plan. The
+Phase 5, the eval harness. Jev is entirely unintegrated — see [the plan](../PLAN.md). The
 deterministic half of it is unblocked and can be built now; the Jev half needs a
 TypeSafe AI key on top of what already works.
 
+Phase 2 Step 4, `verify-index`. The plan's Verification section lists both `verify-index` and
+`eval` as gates, and neither script exists in `package.json`. Without `verify-index` there is
+no check that the live Vectorize index still matches `content/manifest.json`, so index drift is
+currently invisible.
 
+## Cleanup — done 2026-09-27
 
-## Cleanup owed by the operator
+Both Phase 0 probe resources were already gone when checked against the Cloudflare API:
+
+| Resource | State |
+|---|---|
+| Vectorize index `ask-probe` | absent — `ask-sankalp-content` is the only index on the account |
+| Worker `ask-sankalp-ratelimit-probe` | absent — `ask-sankalp` is the only ask worker on the account |
+
+Nothing was billed by either. The commands originally listed here were not needed:
 
 ```sh
 npx wrangler vectorize delete ask-probe --force
 cd ratelimit/worker && npx wrangler delete
 ```
+
+Production `ask-sankalp` and its `ask-sankalp-content` index were left untouched.

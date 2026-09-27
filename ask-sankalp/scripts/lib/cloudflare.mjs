@@ -96,3 +96,43 @@ export async function queryIndex(indexName, vector, topK = 5) {
 
   return body.result.matches.map((m) => ({ id: m.id, score: m.score, metadata: m.metadata }));
 }
+
+// Identifiers only, no vectors and no metadata. That is all a drift check needs
+// and it costs one call, so this stays off the metered query path entirely --
+// see verify-index.mjs for why that distinction decides the default behaviour.
+//
+// The endpoint is `/list` directly under the index, not `/vectors/list`. There is
+// no per-vector GET in v2, so this is the only enumeration the API offers.
+export async function listVectors(indexName) {
+  const res = await fetch(`${API}/accounts/${accountId()}/vectorize/v2/indexes/${indexName}/list`, {
+    headers: { Authorization: `Bearer ${apiToken()}` },
+  });
+
+  if (!res.ok) throw new Error(`list failed: ${res.status} ${await res.text()}`);
+
+  const body = await res.json();
+  if (!body.success) throw new Error(`list error: ${JSON.stringify(body.errors)}`);
+
+  return {
+    ids: body.result.vectors.map((v) => v.id),
+    totalCount: body.result.totalCount,
+    isTruncated: body.result.isTruncated,
+  };
+}
+
+// Index geometry, which is immutable after creation and therefore worth asserting
+// rather than assuming. Phase 0 measured the embedding width before creating the
+// index precisely because getting this wrong cannot be undone.
+export async function indexInfo(indexName) {
+  const res = await fetch(`${API}/accounts/${accountId()}/vectorize/v2/indexes/${indexName}`, {
+    headers: { Authorization: `Bearer ${apiToken()}` },
+  });
+
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`get failed: ${res.status} ${await res.text()}`);
+
+  const body = await res.json();
+  if (!body.success) throw new Error(`get error: ${JSON.stringify(body.errors)}`);
+
+  return body.result.config;
+}

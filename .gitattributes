@@ -1,0 +1,4 @@
+# Normalise line endings in the repository. Files are stored LF; Windows
+# checkouts get CRLF automatically. Added 2026-09-27 to stop the
+# post-migration CRLF churn from reading as a 10k-line diff.
+* text=auto

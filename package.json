@@ -13,6 +13,7 @@
     "ingest": "node ask-sankalp/scripts/ingest.mjs",
     "ingest:upsert": "node ask-sankalp/scripts/ingest.mjs --upsert",
     "calibrate": "node ask-sankalp/scripts/calibrate-vector.mjs",
+    "verify-index": "node ask-sankalp/scripts/verify-index.mjs",
     "probe:models": "node ask-sankalp/scripts/probe-models.mjs",
     "bench:models": "node ask-sankalp/scripts/bench-models.mjs",
     "ask": "node ask-sankalp/scripts/ask.mjs",

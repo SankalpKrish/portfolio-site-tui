@@ -83,6 +83,11 @@ components:
     textColor: "{colors.lavender}"
     rounded: "0"
     padding: "6px 16px"
+  ask-badge:
+    backgroundColor: "rgba(0, 0, 0, 0)"
+    textColor: "{colors.overlay0}"
+    rounded: "{rounded.xs}"
+    padding: "2px 8px"
 ---
 
 # Design System: sankalpkrish.com
@@ -144,7 +149,7 @@ The palette is Catppuccin Mocha verbatim. No custom colors, no overrides. What d
 
 ### Named Rules
 
-**The One Hue, One Job Rule.** Each Catppuccin hue is bound to a semantic role. `--blue` is commands and links. `--lavender` is titles and selection. `--green` is status and backend. `--red` is warning and close. Using `--blue` for a non-command decorative element, or `--green` for anything other than status or backend, breaks the system's signal clarity.
+**The One Hue, One Job Rule.** Each Catppuccin hue is bound to a semantic role. `--blue` is commands and links. `--lavender` is titles and selection. `--green` is status and backend. `--red` is warning and close. Using `--blue` for a non-command decorative element, or `--green` for anything other than status or backend, breaks the system's signal clarity. `/ask` claims no hue of its own: it borrows `--blue` for the `Ask` tool name, `--mauve` for the badge dot, and the neutral text layers for everything else. A generated surface that introduced a new colour would be claiming a semantic role the system has not granted it.
 
 **The No Hardcoded Colors Rule.** No hex values appear outside `tokens.css`. Any new color use must reference a CSS custom property from that file. The constraint is the system.
 
@@ -234,6 +239,26 @@ Appears between terminal output and prompt row when the user types a partial com
 
 `border-left: 2px solid rgba(180,190,254,0.18)`. The one exception to the side-stripe ban: this is a semantic indent marker used consistently inside terminal output to indicate a command result block. It is not a card accent; it is a TUI tree branch.
 
+### Ask Output (cc-ask)
+
+The only surface on this site that produces its own prose at runtime. Everything else is authored by hand; this text comes from a model. That single fact drives every rule below.
+
+It reuses the existing primitives rather than introducing new ones: a `cc-tool-use` row reading `Ask (sankalp)`, then a `cc-output-block` holding the answer. The tool row is what makes the response legible as a tool call rather than a human typing a paragraph, and reusing `cc-tool-use` is why no new chrome was needed.
+
+- **Answer prose:** `.cc-prose` — `--text`, 13px, `line-height: 1.7`. Identical to every other block of body copy in the terminal. The AI does not get its own typography.
+- **Badge:** `.cc-ask-badge`, `inline-flex`, `gap: 6px`, `margin-top: 10px`, `padding: 2px 8px`, `1px solid rgba(180,190,254,0.12)`, `border-radius: 3px`, `--overlay0`, 10px, `letter-spacing: 0.03em`. A 5×5px `--mauve` dot precedes the text. Copy is fixed: `AI twin, not Sankalp himself`.
+- **Citations:** `.cc-ask-sources` label in `--overlay0` at 10px, reading `from`, followed by chunk ids in `.cc-ask-source` — `--overlay1`, 10px, `border-bottom: 1px dotted rgba(180,190,254,0.2)`. The dotted underline marks them as identifiers, not links, because they are not links.
+- **Wait state:** `.cc-ask-wait` — `--overlay1`, 12px — reading `Thinking` with an animated ellipsis (`.cc-ask-dots::after`, `1.2s steps(4, end)`, keyframing `content`). The global `prefers-reduced-motion` rule collapses the duration to `0.01ms`; note that `steps(4, end)` on a zero-length infinite animation is not a reliable way to guarantee the dots disappear, so if that matters, suppress the pseudo-element explicitly rather than relying on the duration collapse. The wait state must remain legible either way — the word `Thinking` carries the meaning, the dots only decorate it.
+- **Degraded copy:** `.cc-prose-dim` (`--subtext0`) for the detail line, with `--blue` reserved for the fallback command links. Offline, rate-limited, and non-2xx states all render in this register, and each names the fixed commands that still work.
+
+**The badge is not decoration.** The model answers in the first person about a real person's projects, credentials and working style, in a voice deliberately identical to the rest of the site. That is what makes it useful and what makes it dangerous. The badge is the only thing separating a warm, confident answer from a fabricated one, so it appears on every single response — the idle prompt, a full answer, and a refusal alike — and it is never dismissible, collapsible, delayed, or shown only when convenient. Removing it does not degrade the feature; it makes the site deceptive.
+
+Refusals are treated as first-class output, not as errors. "I don't have anything on that" is rendered in exactly the same block, with the same badge, as a successful answer, because a system that admits its limits is carrying the same claim as one that answers everything. Styling a refusal as a warning would imply the corpus failed when it did the correct thing.
+
+### Ask Failure States
+
+Three states never reached the Worker or never produced a token: offline, rate-limited, and non-2xx. None of them may render as a browser error, an unstyled rejection, or a stack trace. Each reads as a normal part of the terminal and each closes by pointing at `/projects`, `/skills`, `/about` or `/contact`, in `--blue`, because a dead end should always advertise the fixed pages that still work. This is the same graceful-parity principle as the Canvas 2D fallback, applied to a network dependency instead of a GPU one.
+
 ## 6. Do's and Don'ts
 
 ### Do:
@@ -246,6 +271,8 @@ Appears between terminal output and prompt row when the user types a partial com
 - **Do** respect `prefers-reduced-motion`. When set, kill particle canvas display and collapse all animation durations to `0.01ms`.
 - **Do** keep type within JetBrains Mono at all weights and sizes. No second typeface.
 - **Do** write terminal copy in the established voice: direct, technically grounded, dry. "// I read everything. Eventually." is the register.
+- **Do** keep the `AI twin, not Sankalp himself` badge on every `/ask` response, including the idle prompt and every refusal. It is load-bearing copy, not a label.
+- **Do** render `/ask` refusals and failure states in the same visual register as successful answers. An admission of ignorance is a valid result, not a failure state, and should not be styled as one.
 
 ### Don't:
 
@@ -259,3 +286,6 @@ Appears between terminal output and prompt row when the user types a partial com
 - **Don't** make the site explain itself. No "Welcome to my portfolio" headers. No "Here are my skills" intros. The terminal output copy is direct. Trust the visitor.
 - **Don't** add scroll-driven animations, cursor effects, or page transitions. The site has no scroll. Adding parallax or cursor trails turns precision into performance.
 - **Don't** let the particle canvas overshadow the terminal. It fades in at `opacity: 0.85` — a soft aura, not a spectacle. If tuning it, bias toward subtlety.
+- **Don't** make the `/ask` badge dismissible, conditional, or skippable. No close button, no fade after N seconds, no "don't show this again". A badge that can be dismissed is a badge that will be dismissed, and the visitor who needed it is the one who dismissed it.
+- **Don't** style the AI twin as Sankalp. No avatar, no `--lavender` title treatment, no first-person styling that distinguishes it from ordinary output. The twin borrows the terminal's existing voice and type exactly so that the badge is the single honest signal; adding personhood cues would make the surface more convincing than the truth warrants.
+- **Don't** add a colour to `/ask` that the Catppuccin system has not already assigned. Generated surfaces are the most likely place for a system to grow an unassigned hue, and that is precisely how the One Hue, One Job rule dies.
