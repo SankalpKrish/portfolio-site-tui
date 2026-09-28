@@ -1,5 +1,7 @@
 // src/canvas/ParticleFallback.ts
 
+import { buildSansSpriteTargets } from './SansTargets';
+
 function sampleTextTargets(count: number): Float32Array {
   const el = document.getElementById('intro-text');
   const offscreen = document.createElement('canvas');
@@ -40,58 +42,12 @@ function sampleTextTargets(count: number): Float32Array {
   return out;
 }
 
-async function sampleSansTargets(count: number): Promise<{ tx: Float32Array; colors: Uint8Array }> {
-  const img = new Image();
-  img.src = '/sans.png';
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve();
-    img.onerror = () => reject(new Error('Failed to load sans.png'));
-  });
-
-  const w = img.width || 80;
-  const h = img.height || 80;
-  const offscreen = document.createElement('canvas');
-  offscreen.width = w;
-  offscreen.height = h;
-  const ctx = offscreen.getContext('2d')!;
-  ctx.drawImage(img, 0, 0);
-  const data = ctx.getImageData(0, 0, w, h).data;
-
-  const lit: { vx: number; vy: number; r: number; g: number; b: number }[] = [];
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4;
-      if (data[i + 3] > 128) {
-        // Center the image at (0.5, 0.5) in viewport space
-        lit.push({
-          vx: 0.5 + (x - w / 2) / window.innerWidth,
-          vy: 0.5 + (y - h / 2) / window.innerHeight,
-          r: data[i],
-          g: data[i + 1],
-          b: data[i + 2],
-        });
-      }
-    }
-  }
-  if (lit.length === 0) lit.push({ vx: 0.5, vy: 0.5, r: 255, g: 255, b: 255 });
-
-  const tx = new Float32Array(count * 2);
-  const colors = new Uint8Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    const item = lit[i % lit.length];
-    tx[i * 2] = item.vx;
-    tx[i * 2 + 1] = item.vy;
-    colors[i * 3] = item.r;
-    colors[i * 3 + 1] = item.g;
-    colors[i * 3 + 2] = item.b;
-  }
-  return { tx, colors };
-}
-
 export class ParticleFallback {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private N = 50_000;
+  // One particle per lit sprite pixel. Fewer and the sprite is only partly
+  // sampled, which reads as holes rather than as a smaller mascot.
+  private N = 80_000;
   private raf = 0;
 
   // Per-particle arrays
@@ -108,9 +64,11 @@ export class ParticleFallback {
   // Sans logo targets (pre-loaded, swapped in on phase 2)
   private sansTx!: Float32Array;
   private sansTy!: Float32Array;
-  private sansR!: Uint8Array;
-  private sansG!: Uint8Array;
-  private sansB!: Uint8Array;
+  private sansRgb!: Uint8Array;
+  private spriteScale = 1;
+  // A sprite pixel is a whole number of device pixels on both paths, so the
+  // rect has to be that many device pixels wide or the two drift apart.
+  private dot = 1.5;
 
   private phase = 1.0;
   private attract = 1.0;
@@ -128,7 +86,8 @@ export class ParticleFallback {
     this.resize();
 
     const textTargets = sampleTextTargets(this.N);
-    const { tx: sansTx, colors: sansColors } = await sampleSansTargets(this.N);
+    const sprite = await buildSansSpriteTargets(this.N);
+    this.spriteScale = sprite.scale;
 
     // Allocate per-particle arrays
     this.x  = new Float32Array(this.N);
@@ -144,16 +103,10 @@ export class ParticleFallback {
     // Store sans targets for phase 2
     this.sansTx = new Float32Array(this.N);
     this.sansTy = new Float32Array(this.N);
-    this.sansR  = new Uint8Array(this.N);
-    this.sansG  = new Uint8Array(this.N);
-    this.sansB  = new Uint8Array(this.N);
-    for (let i = 0; i < this.N; i++) {
-      this.sansTx[i] = sansTx[i * 2];
-      this.sansTy[i] = sansTx[i * 2 + 1];
-      this.sansR[i]  = sansColors[i * 3];
-      this.sansG[i]  = sansColors[i * 3 + 1];
-      this.sansB[i]  = sansColors[i * 3 + 2];
-    }
+    this.sansRgb = new Uint8Array(this.N * 3);
+    this.sansTx.set(sprite.tx);
+    this.sansTy.set(sprite.ty);
+    this.sansRgb.set(sprite.rgb);
 
     // Init particles on text targets, white color
     for (let i = 0; i < this.N; i++) {
@@ -193,12 +146,13 @@ export class ParticleFallback {
       clearInterval(this.attractInterval);
       clearTimeout(this.attractTimeout);
       this.attract = 1.0;
+      this.dot = this.spriteScale;
       for (let i = 0; i < this.N; i++) {
         this.tx[i] = this.sansTx[i];
         this.ty[i] = this.sansTy[i];
-        this.r[i]  = this.sansR[i];
-        this.g[i]  = this.sansG[i];
-        this.b[i]  = this.sansB[i];
+        this.r[i]  = this.sansRgb[i * 3];
+        this.g[i]  = this.sansRgb[i * 3 + 1];
+        this.b[i]  = this.sansRgb[i * 3 + 2];
       }
     }
 
@@ -244,7 +198,12 @@ export class ParticleFallback {
       this.y[i] += this.vy[i];
 
       this.ctx.fillStyle = `rgb(${this.r[i]},${this.g[i]},${this.b[i]})`;
-      this.ctx.fillRect(this.x[i] * W - 0.75, this.y[i] * H - 0.75, 1.5, 1.5);
+      this.ctx.fillRect(
+        this.x[i] * W - this.dot / 2,
+        this.y[i] * H - this.dot / 2,
+        this.dot,
+        this.dot,
+      );
     }
   }
 
