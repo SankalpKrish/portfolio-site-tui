@@ -47,8 +47,17 @@ const PROMPT_VERSION = '3';
 const CORPUS = corpusData as unknown as Corpus;
 const INDEX = bm25Index as unknown as Index;
 
-const ALLOWED_ORIGIN = 'https://sankalpkrish.com';
-const ALLOWED_ORIGINS = new Set([ALLOWED_ORIGIN, 'http://localhost:4321']);
+// The terminal is deployed to the tui. subdomain; the apex belongs to the
+// separate React project. Both are listed because both host a copy of this
+// Worker caller at different times, and the first deploy after this was written
+// shipped a 403 to every /ask on the live site -- the allowlist below still held
+// only the apex, from a README that named the wrong host as the live site.
+const ALLOWED_ORIGIN = 'https://tui.sankalpkrish.com';
+const ALLOWED_ORIGINS = new Set([
+  ALLOWED_ORIGIN,
+  'https://sankalpkrish.com',
+  'http://localhost:4321',
+]);
 
 const TOP_K = 20;
 const TOP_N = 5;

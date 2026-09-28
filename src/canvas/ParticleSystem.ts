@@ -1,5 +1,7 @@
 // src/canvas/ParticleSystem.ts
 
+import { buildSansSpriteTargets } from './SansTargets';
+
 function generateTextTargets(count: number): Float32Array {
   const el = document.getElementById('intro-text');
   if (!el) {
@@ -48,59 +50,6 @@ function generateTextTargets(count: number): Float32Array {
     const [x, y] = lit[i % lit.length];
     out[i * 2] = x; 
     out[i * 2 + 1] = y;
-  }
-  return out;
-}
-
-async function generateSansTargets(count: number): Promise<Float32Array> {
-  const img = new Image();
-  img.src = '/sans.png';
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve();
-    img.onerror = () => reject(new Error('Failed to load sans.png'));
-  });
-
-  const w = img.width || 80;
-  const h = img.height || 80;
-  const offscreen = document.createElement('canvas');
-  offscreen.width = w; offscreen.height = h;
-  const ctx = offscreen.getContext('2d')!;
-  ctx.drawImage(img, 0, 0);
-  const data = ctx.getImageData(0, 0, w, h).data;
-
-  const lit: { pos: [number, number]; col: [number, number, number] }[] = [];
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const alpha = data[(y * w + x) * 4 + 3];
-      if (alpha > 128) {
-        const rx = (x - w / 2) / w;
-        const ry = (y - h / 2) / h;
-        
-        const r = data[(y * w + x) * 4] / 255;
-        const g = data[(y * w + x) * 4 + 1] / 255;
-        const b = data[(y * w + x) * 4 + 2] / 255;
-        
-        lit.push({ pos: [rx, ry], col: [r, g, b] });
-      }
-    }
-  }
-
-  if (lit.length === 0) {
-    lit.push({ pos: [0, 0], col: [1, 1, 1] });
-  }
-
-  // Pack into 32-byte layout: pos (vec2), color (vec3), padding
-  const out = new Float32Array(count * 8);
-  for (let i = 0; i < count; i++) {
-    const item = lit[i % lit.length];
-    out[i * 8]     = item.pos[0];
-    out[i * 8 + 1] = item.pos[1];
-    out[i * 8 + 2] = 0.0;
-    out[i * 8 + 3] = 0.0;
-    out[i * 8 + 4] = item.col[0];
-    out[i * 8 + 5] = item.col[1];
-    out[i * 8 + 6] = item.col[2];
-    out[i * 8 + 7] = 0.0;
   }
   return out;
 }
@@ -184,8 +133,19 @@ export class ParticleSystem {
     });
     this.device.queue.writeBuffer(this.targetBuf, 0, targets as any);
 
-    // Target Sans logo buffer
-    const sansTargets = await generateSansTargets(this.N);
+    // Target Sans logo buffer. It holds exactly one entry per sprite target, so
+    // the compute shader's modulo wraps surplus particles back onto the sprite
+    // instead of reading past the end of it.
+    const sprite = await buildSansSpriteTargets(this.N);
+    const sansTargets = new Float32Array(sprite.count * 8);
+    for (let i = 0; i < sprite.count; i++) {
+      // Pack into 32-byte layout: pos (vec2), color (vec3), padding
+      sansTargets[i * 8]     = sprite.tx[i];
+      sansTargets[i * 8 + 1] = sprite.ty[i];
+      sansTargets[i * 8 + 4] = sprite.rgb[i * 3] / 255;
+      sansTargets[i * 8 + 5] = sprite.rgb[i * 3 + 1] / 255;
+      sansTargets[i * 8 + 6] = sprite.rgb[i * 3 + 2] / 255;
+    }
     this.sansBuf = this.device.createBuffer({
       size: sansTargets.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,

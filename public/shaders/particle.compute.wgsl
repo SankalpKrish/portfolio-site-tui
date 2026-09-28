@@ -67,14 +67,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     p.color = vec3<f32>(1.0, 1.0, 1.0);
 
   } else if uniforms.phase == 2.0 {
-    // Phase 2: Converge on centered Sans pixel art logo
+    // Phase 2: Converge on the Sans sprite. Targets already arrive as
+    // viewport fractions with the sprite sitting on whole device pixels, so no
+    // per-axis rescale happens here: a fractional one is what smeared the
+    // mascot into horizontal scanlines.
     let sans = sansTargets[i % arrayLength(&sansTargets)];
-    
-    // Scale and center the Sans head perfectly (square ratio) using passed aspect
-    let scale_x = 0.25;
-    let scale_y = scale_x * uniforms.aspect;
-    
-    let target_pos = vec2<f32>(0.5, 0.5) + vec2<f32>(sans.pos.x * scale_x, sans.pos.y * scale_y);
+    let target_pos = sans.pos;
     
     let toTarget = target_pos - p.pos;
     let distSq = dot(toTarget, toTarget);
