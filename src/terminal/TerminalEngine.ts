@@ -59,13 +59,14 @@ export class TerminalEngine {
     if (rawVal.startsWith('/')) {
       if (rawVal.startsWith('/ask ')) {
         // Offer whole questions rather than command names, so the feature is
-        // discoverable without reading /help first.
-        const arg = rawVal.slice(5).trim().toLowerCase();
-        this.setMatches(
-          ASK_EXAMPLES
-            .filter((q) => q.toLowerCase().includes(arg))
-            .map((q) => ({ name: `/ask ${q}`, desc: '' })),
-        );
+        // discoverable without reading /help first. Only while the argument is
+        // still empty: /ask answers anything, so a pane that filtered as the
+        // visitor typed would imply these five were the only answerable ones.
+        if (rawVal.slice(5).trim() !== '') {
+          this.hideAutocomplete();
+        } else {
+          this.setMatches(ASK_EXAMPLES.map((q) => ({ name: `/ask ${q}`, desc: '' })));
+        }
       } else if (rawVal.startsWith('/open') || rawVal.startsWith('/open ')) {
         // Slice out '/open' (5 chars) to get the filter argument
         const arg = rawVal.slice(5).trim().toLowerCase();
@@ -108,6 +109,15 @@ export class TerminalEngine {
   // menu reopens to filter the next thing typed.
   private complete(name: string): string {
     return name.endsWith(' ') || name === '/open' || name === '/ask' ? `${name} ` : name;
+  }
+
+  // /open and the bare command names draw from closed sets, so accepting a
+  // suggestion on Enter can only pick the one value the visitor could have meant.
+  // A question is not a closed set: substituting an example there would discard
+  // whatever sentence they actually wrote, so Enter submits it and only Tab
+  // replaces it.
+  private askArgumentStarted(): boolean {
+    return this.inputEl.value.startsWith('/ask ');
   }
 
   private renderAutocomplete() {
@@ -174,7 +184,7 @@ export class TerminalEngine {
         this.renderAutocomplete();
         return;
       }
-      if (e.key === 'Tab' || e.key === 'Enter') {
+      if (e.key === 'Tab' || (e.key === 'Enter' && !this.askArgumentStarted())) {
         e.preventDefault();
         const completed = this.complete(this.autocompleteMatches[this.autocompleteIndex].name);
         this.inputEl.value = completed;
